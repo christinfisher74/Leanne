@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leanne — Daily Check-In</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #F7F4EF;
+    --card: #FFFFFF;
+    --dark-green: #2D4A3E;
+    --mid-green: #4A6741;
+    --olive: #8A9A5B;
+    --taupe: #C4B49A;
+    --light-tan: #EDE8DF;
+    --text-dark: #2A2A28;
+    --text-mid: #6B6862;
+    --text-light: #9A968D;
+    --border: #E3DFD6;
+    --done: #4A6741;
+    --done-bg: #E7EEE3;
+    --pending: #C4B49A;
+    --amber: #C18A3D;
+    --amber-bg: #F6EBDA;
+    --red: #B5544A;
+    --red-bg: #F5E5E2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* MODE SWITCH */
+  .mode-switch {
+    display: flex;
+    justify-content: center;
+    padding: 10px 16px 0;
+  }
+
+  .mode-pill {
+    background: var(--light-tan);
+    border-radius: 20px;
+    padding: 3px;
+    display: flex;
+    gap: 2px;
+  }
+
+  .mode-btn {
+    padding: 6px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 17px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-mid);
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .mode-btn.active {
+    background: var(--dark-green);
+    color: white;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--dark-green);
+    color: white;
+    padding: 18px 24px 22px;
+    border-radius: 0 0 24px 24px;
+    margin-top: 10px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .greeting {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .date {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    margin-top: 2px;
+  }
+
+  .streak-badge {
+    background: rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--olive);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    min-width: 38px;
+    text-align: right;
+  }
+
+  /* CONTENT */
+  .content {
+    padding: 20px 18px 100px;
+    flex: 1;
+  }
+
+  .section { margin-bottom: 22px; }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .section-time {
+    font-weight: 400;
+    text-transform: none;
+    color: var(--text-light);
+    letter-spacing: 0;
+  }
+
+  /* SESSION REMINDER CARD */
+  .session-reminder {
+    background: var(--dark-green);
+    color: white;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    display: none;
+  }
+
+  .session-reminder.show { display: block; }
+
+  .session-reminder-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .session-reminder-body {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.5;
+  }
+
+  .session-reminder-list {
+    margin-top: 8px;
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .session-reminder-list div {
+    padding: 3px 0;
+  }
+
+  /* CHECK CARDS */
+  .check-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .check-card:active { transform: scale(0.98); }
+  .check-card.done { background: var(--done-bg); border-color: var(--done); }
+  .check-card.no-click { cursor: default; }
+  .check-card.no-click:active { transform: none; }
+
+  .check-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--light-tan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+
+  .check-card.done .check-icon { background: var(--done); }
+
+  .check-text { flex: 1; min-width: 0; }
+  .check-title { font-size: 14.5px; font-weight: 500; color: var(--text-dark); margin-bottom: 1px; }
+  .check-sub { font-size: 12px; color: var(--text-mid); }
+
+  .check-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--pending);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+
+  .check-card.done .check-mark { background: var(--done); border-color: var(--done); }
+  .check-mark svg { width: 14px; height: 14px; opacity: 0; transition: opacity 0.15s ease; }
+  .check-card.done .check-mark svg { opacity: 1; }
+
+  /* MOOD */
+  .mood-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .mood-row { display: flex; gap: 8px; margin-top: 10px; }
+
+  .mood-btn {
+    flex: 1;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--light-tan);
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mood-btn:active { transform: scale(0.92); }
+  .mood-btn.selected { background: var(--olive); border-color: var(--mid-green); transform: scale(1.05); }
+
+  /* SUMMARY */
+  .week-summary {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 4px;
+  }
+
+  .week-title { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 12px; }
+  .week-grid { display: flex; justify-content: space-between; gap: 6px; }
+  .week-day { flex: 1; text-align: center; }
+  .week-day-label { font-size: 10px; color: var(--text-light); margin-bottom: 6px; font-weight: 600; }
+
+  .week-day-dot {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--light-tan); margin: 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: var(--text-light);
+  }
+
+  .week-day-dot.complete { background: var(--done); color: white; }
+  .week-day-dot.partial { background: var(--taupe); color: white; }
+  .week-day-dot.today { border: 2px solid var(--dark-green); }
+
+  /* COACH NOTE */
+  .coach-note {
+    background: var(--light-tan);
+    border: 1px solid var(--taupe);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-dark);
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .coach-note-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: sticky;
+    bottom: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    gap: 6px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    background: transparent;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-mid);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.15s ease;
+    font-family: inherit;
+  }
+
+  .nav-btn.active { background: var(--light-tan); color: var(--dark-green); }
+  .nav-icon { font-size: 18px; }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .all-done-banner {
+    background: var(--dark-green);
+    color: white;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 18px;
+    display: none;
+  }
+
+  .all-done-banner.show { display: block; }
+  .all-done-emoji { font-size: 28px; margin-bottom: 4px; }
+  .all-done-text { font-size: 14px; font-weight: 600; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-mid); }
+  .empty-state-icon { font-size: 32px; margin-bottom: 10px; }
+
+  /* COACH DASHBOARD SPECIFIC */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+  }
+
+  .stat-value { font-size: 24px; font-weight: 700; color: var(--dark-green); }
+  .stat-label { font-size: 11.5px; color: var(--text-mid); margin-top: 2px; }
+
+  .pattern-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+
+  .pattern-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+  }
+
+  .pattern-name { font-size: 13.5px; color: var(--text-dark); }
+
+  .pattern-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--light-tan);
+    border-radius: 6px;
+    margin: 0 10px;
+    overflow: hidden;
+  }
+
+  .pattern-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+  }
+
+  .pattern-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-mid);
+    min-width: 32px;
+    text-align: right;
+  }
+
+  .mood-trend-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 60px;
+    margin-top: 12px;
+  }
+
+  .mood-trend-bar {
+    flex: 1;
+    background: var(--olive);
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    position: relative;
+  }
+
+  .mood-trend-bar.no-data { background: var(--border); }
+
+  .mood-trend-labels {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .mood-trend-labels span {
+    flex: 1;
+    text-align: center;
+    font-size: 9px;
+    color: var(--text-light);
+  }
+
+  .alert-card {
+    background: var(--amber-bg);
+    border: 1px solid var(--amber);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .alert-card.danger { background: var(--red-bg); border-color: var(--red); }
+
+  .alert-icon { font-size: 16px; flex-shrink: 0; }
+  .alert-text { font-size: 12.5px; color: var(--text-dark); line-height: 1.45; }
+  .alert-text strong { display: block; margin-bottom: 2px; }
+
+  /* SHOULDER PROTOCOL */
+  .shoulder-week-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .week-tab {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+
+  .week-tab.active { background: var(--dark-green); color: white; border-color: var(--dark-green); }
+  .week-tab.complete-tab { border-color: var(--done); }
+  .week-tab.complete-tab::after { content: ' ✓'; }
+
+  .shoulder-day-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .shoulder-day {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+
+  .shoulder-day.done { background: var(--done); color: white; border-color: var(--done); }
+
+  /* SHOULDER EXERCISE MODAL */
+  .shoulder-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 50;
+  }
+
+  .shoulder-modal-overlay.show { display: flex; }
+
+  .shoulder-modal {
+    background: var(--card);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 20px 20px 28px;
+  }
+
+  .shoulder-modal-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 0 auto 16px;
+  }
+
+  .shoulder-modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .shoulder-modal-sub {
+    font-size: 12.5px;
+    color: var(--text-mid);
+    margin-bottom: 16px;
+  }
+
+  .exercise-item {
+    background: var(--light-tan);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+
+  .exercise-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+  }
+
+  .exercise-sets {
+    font-size: 12px;
+    color: var(--mid-green);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .exercise-cue {
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.4;
+  }
+
+  .modal-done-btn {
+    width: 100%;
+    background: var(--dark-green);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .modal-done-btn:active { transform: scale(0.98); }
+
+  .modal-close-btn {
+    width: 100%;
+    background: transparent;
+    color: var(--text-mid);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 8px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .bonus-toggle {
+    background: var(--light-tan);
+    border: 1px solid var(--taupe);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+
+  .bonus-toggle-text { font-size: 12.5px; color: var(--text-dark); }
+  .bonus-toggle-text strong { display: block; font-size: 13.5px; margin-bottom: 1px; }
+
+  /* CYCLE TRACKER CARD */
+  .cycle-card {
+    background: var(--red-bg);
+    border: 1px solid var(--red);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 16px;
+    cursor: pointer;
+  }
+
+  .cycle-card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .cycle-phase-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .cycle-phase-text { font-size: 12px; color: var(--text-dark); line-height: 1.35; flex: 1; }
+  .cycle-phase-text strong { display: block; font-size: 14px; margin-bottom: 1px; }
+
+  .cycle-day-dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .cycle-dot {
+    flex: 1;
+    height: 6px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.08);
+  }
+
+  .cycle-dot.past { background: var(--red); opacity: 0.5; }
+  .cycle-dot.current { background: var(--red); }
+
+  .cycle-update-row {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .cycle-update-label {
+    font-size: 12.5px;
+    color: var(--text-mid);
+    margin-bottom: 8px;
+  }
+
+  .cycle-date-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-dark);
+    background: var(--card);
+  }
+
+  /* RUN CARD */
+  .run-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin: 12px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .run-card:active { transform: scale(0.98); }
+
+  .run-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--light-tan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .run-card-text { flex: 1; }
+  .run-card-text strong { display: block; font-size: 14.5px; color: var(--text-dark); margin-bottom: 1px; }
+  .run-card-text span { font-size: 12px; color: var(--text-mid); }
+
+  /* MICRO RESETS */
+  .micro-reset-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 2px 6px;
+    margin-bottom: 4px;
+  }
+
+  .micro-reset-card {
+    flex: 0 0 auto;
+    width: 108px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 10px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .micro-reset-card.done {
+    background: var(--done-bg);
+    border-color: var(--done);
+  }
+
+  .micro-reset-icon { font-size: 20px; margin-bottom: 4px; }
+  .micro-reset-name { font-size: 11.5px; font-weight: 600; color: var(--text-dark); line-height: 1.3; }
+  .micro-reset-time { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+
+  /* STRENGTH DAY CARDS */
+  .strength-day-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .strength-day-card:active { transform: scale(0.98); }
+
+  .strength-day-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--light-tan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .strength-day-text { flex: 1; }
+  .strength-day-text strong { display: block; font-size: 14.5px; color: var(--text-dark); margin-bottom: 1px; }
+  .strength-day-text span { font-size: 12px; color: var(--text-mid); }
+  .strength-day-arrow { font-size: 20px; color: var(--text-light); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="mode-switch">
+    <div class="mode-pill">
+      <button class="mode-btn active" id="modeClient" onclick="switchMode('client')">Leanne's view</button>
+      <button class="mode-btn" id="modeCoach" onclick="switchMode('coach')">Coach view</button>
+    </div>
+  </div>
+
+  <!-- ============ CLIENT MODE ============ -->
+  <div id="clientMode">
+
+    <div class="header">
+      <div class="header-top">
+        <div>
+          <div class="greeting">Hey Leanne 👋</div>
+          <div class="date" id="todayDate"></div>
+        </div>
+        <div class="streak-badge">🔥 <span id="streakCount">0</span> day streak</div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">0/6</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="view active" id="view-today">
+
+        <div class="session-reminder" id="sessionReminder">
+          <div class="session-reminder-title">📋 <span id="sessionReminderTitle">Session tomorrow</span></div>
+          <div class="session-reminder-body" id="sessionReminderBody"></div>
+        </div>
+
+        <div class="all-done-banner" id="allDoneBanner">
+          <div class="all-done-emoji">💪</div>
+          <div class="all-done-text">All checked in. Nice work today.</div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Morning <span class="section-time">— before work</span></div>
+          <div class="check-card" data-key="water-am" onclick="toggleCheck(this)">
+            <div class="check-icon">💧</div>
+            <div class="check-text"><div class="check-title">Drank water</div><div class="check-sub">Start the day hydrated</div></div>
+            <div class="check-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="check-card" data-key="breakfast" onclick="toggleCheck(this)">
+            <div class="check-icon">🥪</div>
+            <div class="check-text"><div class="check-title">Had breakfast</div><div class="check-sub">Protein in before the job site</div></div>
+            <div class="check-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">On the job <span class="section-time">— midday</span></div>
+          <div class="check-card" data-key="water-pm" onclick="toggleCheck(this)">
+            <div class="check-icon">💧</div>
+            <div class="check-text"><div class="check-title">Still drinking water</div><div class="check-sub">Easy to forget mid-shift</div></div>
+            <div class="check-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="check-card" data-key="lunch" onclick="toggleCheck(this)">
+            <div class="check-icon">🍱</div>
+            <div class="check-text"><div class="check-title">Ate lunch</div><div class="check-sub">Protein, not just an apple</div></div>
+            <div class="check-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">After work <span class="section-time">— evening</span></div>
+          <div class="check-card" data-key="shoulders" onclick="toggleCheck(this)">
+            <div class="check-icon">🤸</div>
+            <div class="check-text"><div class="check-title">Shoulder mobility</div><div class="check-sub">Y-T-W or quadruped push-ups — unwind after the job</div></div>
+            <div class="check-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="check-card" data-key="dinner" onclick="toggleCheck(this)">
+            <div class="check-icon">🍽️</div>
+            <div class="check-text"><div class="check-title">Ate dinner</div><div class="check-sub">Refuel after a long day</div></div>
+            <div class="check-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">How are you feeling?</div>
+          <div class="mood-card">
+            <div style="font-size:13px; color:var(--text-mid);">Quick energy check — no overthinking it</div>
+            <div class="mood-row" id="moodRow">
+              <div class="mood-btn" data-mood="1" onclick="setMood(this)">😩</div>
+              <div class="mood-btn" data-mood="2" onclick="setMood(this)">😕</div>
+              <div class="mood-btn" data-mood="3" onclick="setMood(this)">😐</div>
+              <div class="mood-btn" data-mood="4" onclick="setMood(this)">🙂</div>
+              <div class="mood-btn" data-mood="5" onclick="setMood(this)">💪</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="coach-note">
+          <div class="coach-note-icon">💬</div>
+          <div>Even hitting 3 or 4 of these counts. This isn't about perfect — it's about more days good than not. — Christin</div>
+        </div>
+
+      </div>
+
+      <div class="view" id="view-history">
+        <div class="section">
+          <div class="week-summary">
+            <div class="week-title">This week</div>
+            <div class="week-grid" id="weekGrid"></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-label">Last 14 days</div>
+          <div id="historyList"></div>
+        </div>
+      </div>
+
+      <div class="view" id="view-shoulder">
+
+        <div class="cycle-card" id="cycleCard" onclick="switchToCycleView()">
+          <div class="cycle-card-top">
+            <div class="cycle-phase-icon" id="cyclePhaseIcon">🔴</div>
+            <div class="cycle-phase-text">
+              <strong id="cyclePhaseTitle">Period — Day 1</strong>
+              <span id="cyclePhaseSub">Bloating and achiness are normal — tap for what helps</span>
+            </div>
+          </div>
+          <div class="cycle-day-dots" id="cycleDayDots"></div>
+        </div>
+
+        <div class="section-label">Quick resets <span class="section-time">— anytime, even driving</span></div>
+        <div class="micro-reset-row" id="microResetRow"></div>
+
+        <div class="run-card" id="runCard" onclick="openRunCheck()">
+          <div class="run-card-icon">🏃</div>
+          <div class="run-card-text">
+            <strong>Feeling good? Go for a run</strong>
+            <span>Tap for a quick warm-up first</span>
+          </div>
+          <div class="strength-day-arrow">›</div>
+        </div>
+
+        <div class="section-label" style="margin-top:18px;">Strength days <span class="section-time">— when you feel good, 2x/week</span></div>
+        <div class="strength-day-card" onclick="openStrengthDay('A')">
+          <div class="strength-day-icon">💪</div>
+          <div class="strength-day-text">
+            <strong>Day A — Push Focus</strong>
+            <span>Chest, shoulders, triceps, core</span>
+          </div>
+          <div class="strength-day-arrow">›</div>
+        </div>
+        <div class="strength-day-card" onclick="openStrengthDay('B')">
+          <div class="strength-day-icon">💪</div>
+          <div class="strength-day-text">
+            <strong>Day B — Pull Focus</strong>
+            <span>Back, biceps, rear delts, core</span>
+          </div>
+          <div class="strength-day-arrow">›</div>
+        </div>
+
+        <div class="pattern-card" style="margin-top:18px;">
+          <div class="week-title">This week</div>
+          <div style="display:flex; gap:16px; margin-top:8px;">
+            <div>
+              <div class="stat-value" id="microResetCount" style="font-size:22px;">0</div>
+              <div class="stat-label">quick resets</div>
+            </div>
+            <div>
+              <div class="stat-value" id="strengthDayCount" style="font-size:22px;">0/2</div>
+              <div class="stat-label">strength days</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="shoulder-modal-overlay" id="shoulderModalOverlay" onclick="closeModalOnOverlay(event)">
+      <div class="shoulder-modal">
+        <div class="shoulder-modal-handle"></div>
+        <div class="shoulder-modal-title" id="modalTitle">Day 1</div>
+        <div class="shoulder-modal-sub" id="modalSub">~5 minutes. No equipment needed.</div>
+        <div id="modalExerciseList"></div>
+        <button class="modal-done-btn" id="modalDoneBtn" onclick="markDayDone()">Mark this done</button>
+        <button class="modal-close-btn" onclick="closeShoulderModal()">Close</button>
+      </div>
+    </div>
+
+    <div class="shoulder-modal-overlay" id="cycleModalOverlay" onclick="closeCycleModalOnOverlay(event)">
+      <div class="shoulder-modal">
+        <div class="shoulder-modal-handle"></div>
+        <div class="shoulder-modal-title" id="cycleModalTitle">🔴 Period — Day 1</div>
+        <div class="shoulder-modal-sub" id="cycleModalSub">Here's what's going on and what helps.</div>
+        <div id="cycleModalBody"></div>
+        <div class="cycle-update-row">
+          <div class="cycle-update-label">When did your period start?</div>
+          <input type="date" id="periodStartInput" class="cycle-date-input">
+          <button class="modal-done-btn" onclick="savePeriodStart()" style="margin-top:8px;">Update start date</button>
+        </div>
+        <button class="modal-close-btn" onclick="closeCycleModal()" style="margin-top:8px;">Close</button>
+      </div>
+    </div>
+
+    <div class="shoulder-modal-overlay" id="runModalOverlay" onclick="closeRunModalOnOverlay(event)">
+      <div class="shoulder-modal">
+        <div class="shoulder-modal-handle"></div>
+        <div class="shoulder-modal-title">🏃 Quick warm-up first</div>
+        <div class="shoulder-modal-sub">~5 minutes before you head out. Don't skip it cold.</div>
+        <div class="exercise-item">
+          <div class="exercise-name">Leg Swings</div>
+          <div class="exercise-sets">10 each leg, front-to-back</div>
+          <div class="exercise-cue">Hold something for balance. Controlled swings, not max range.</div>
+        </div>
+        <div class="exercise-item">
+          <div class="exercise-name">Walking Lunge</div>
+          <div class="exercise-sets">8 each leg</div>
+          <div class="exercise-cue">Slow and controlled — wakes up the hips and quads.</div>
+        </div>
+        <div class="exercise-item">
+          <div class="exercise-name">High Knees + Butt Kicks</div>
+          <div class="exercise-sets">20 sec each</div>
+          <div class="exercise-cue">Light and easy — just get the heart rate up a little before you take off.</div>
+        </div>
+        <div class="exercise-item">
+          <div class="exercise-name">Easy first 5 minutes</div>
+          <div class="exercise-sets">Slow pace</div>
+          <div class="exercise-cue">Ease into your actual pace — don't sprint off the start.</div>
+        </div>
+        <button class="modal-done-btn" id="runDoneBtn" onclick="markRunDone()">Logged — heading out</button>
+        <button class="modal-close-btn" onclick="closeRunModal()">Close</button>
+      </div>
+    </div>
+
+    <div class="shoulder-modal-overlay" id="strengthModalOverlay" onclick="closeStrengthModalOnOverlay(event)">
+      <div class="shoulder-modal">
+        <div class="shoulder-modal-handle"></div>
+        <div class="shoulder-modal-title" id="strengthModalTitle">Day A — Push Focus</div>
+        <div class="shoulder-modal-sub" id="strengthModalSub">~35-40 minutes. Only when you feel good.</div>
+        <div id="strengthExerciseList"></div>
+        <button class="modal-done-btn" id="strengthDoneBtn" onclick="markStrengthDayDone()">Mark this done</button>
+        <button class="modal-close-btn" onclick="closeStrengthModal()">Close</button>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="nav-btn active" id="navToday" onclick="switchView('today')">
+        <span class="nav-icon">✓</span>Today
+      </button>
+      <button class="nav-btn" id="navShoulder" onclick="switchView('shoulder')">
+        <span class="nav-icon">🎯</span>Shoulders
+      </button>
+      <button class="nav-btn" id="navHistory" onclick="switchView('history')">
+        <span class="nav-icon">📅</span>History
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ============ COACH MODE ============ -->
+  <div id="coachMode" style="display:none;">
+
+    <div class="header">
+      <div class="header-top">
+        <div>
+          <div class="greeting">Leanne's progress</div>
+          <div class="date" id="coachDateRange">Last 14 days</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div id="coachAlerts"></div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="coachStreak">0</div>
+          <div class="stat-label">Current streak (days)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="coachAvgChecks">0/6</div>
+          <div class="stat-label">Avg daily check-ins</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="coachConsistency">0%</div>
+          <div class="stat-label">Days logged (14d)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="coachShoulderRate">0%</div>
+          <div class="stat-label">Shoulder work done</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">What she skips most</div>
+        <div class="pattern-card" id="patternBreakdown"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Mood / energy trend — last 14 days</div>
+        <div class="pattern-card">
+          <div class="mood-trend-row" id="moodTrendBars"></div>
+          <div class="mood-trend-labels" id="moodTrendLabels"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Daily log</div>
+        <div id="coachHistoryList"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const CHECK_KEYS = ['water-am', 'breakfast', 'shoulders', 'water-pm', 'lunch', 'dinner'];
+const CHECK_LABELS = {
+  'water-am': 'Morning water',
+  'breakfast': 'Breakfast',
+  'shoulders': 'Shoulder mobility',
+  'water-pm': 'Midday water',
+  'lunch': 'Lunch',
+  'dinner': 'Dinner'
+};
+const TOTAL_CHECKS = CHECK_KEYS.length;
+
+// Quick resets — can do anywhere, several driving-friendly
+const MICRO_RESETS = [
+  { id: 'wall-push', icon: '🧱', name: 'Wall elbow push', time: '1 min', cue: 'Forearms on a wall or doorframe. Push in, feel upper back engage. 5 sec hold x 5.' },
+  { id: 'shoulder-rolls', icon: '🔄', name: 'Shoulder rolls', time: '30 sec', cue: 'Big slow circles, both directions. Can do this at red lights.' },
+  { id: 'chest-opener', icon: '🙆', name: 'Chest opener', time: '30 sec', cue: 'Clasp hands behind back, squeeze blades together, breathe into the stretch. Driving-friendly — do it at a stop.' },
+  { id: 'neck-roll', icon: '💆', name: 'Neck + jaw release', time: '30 sec', cue: 'Slow neck circles, drop jaw open. Releases tension that builds from clenching at work.' },
+  { id: 'band-pullapart', icon: '🎗️', name: 'Band pull-apart', time: '1 min', cue: 'If you have a band in the truck — 15-20 reps, slow.' },
+  { id: 'pec-stretch', icon: '🚪', name: 'Doorway pec stretch', time: '1 min', cue: 'Forearm on doorframe, lean forward gently. 30 sec each side.' }
+];
+
+// Two real strength days — full workouts, shoulder-safe movement selection
+const STRENGTH_DAYS = {
+  A: {
+    title: 'Day A — Push Focus',
+    sub: '~35-40 min. Chest, shoulders, triceps, core.',
+    sections: [
+      {
+        label: 'Warm-up',
+        exercises: [
+          { name: 'Wall Elbow Push', sets: '2 x 10', cue: 'Wake up the upper back before anything else.' },
+          { name: 'Band Pull-Apart', sets: '2 x 15', cue: 'Light band. Full extension, slow.' }
+        ]
+      },
+      {
+        label: 'Chest',
+        exercises: [
+          { name: 'Floor Press (light DBs)', sets: '3 x 10', cue: 'Floor limits range so you can\'t sink into the shoulder. Retract before you press.' },
+          { name: 'Incline DB Press — neutral grip', sets: '3 x 10', cue: 'Neutral grip only. Slow on the way down. Stop if shoulder talks.' }
+        ]
+      },
+      {
+        label: 'Shoulders',
+        exercises: [
+          { name: 'Landmine Press', sets: '3 x 8/side', cue: 'Brace before you press. Controlled, not rushed.' },
+          { name: 'Face Pull', sets: '3 x 15', cue: 'Pull to forehead, rotate hands back. This protects everything above.' }
+        ]
+      },
+      {
+        label: 'Triceps',
+        exercises: [
+          { name: 'Cable Tricep Pushdown', sets: '3 x 12', cue: 'Elbows pinned to your sides the whole set.' },
+          { name: 'Overhead DB Extension', sets: '2 x 12', cue: 'Full stretch at bottom. Light weight, control it.' }
+        ]
+      },
+      {
+        label: 'Core',
+        exercises: [
+          { name: 'Bear Plank Hold', sets: '3 x 30 sec', cue: 'Knees just off floor. Breathe — don\'t hold your breath.' },
+          { name: 'Dead Bug', sets: '2 x 8/side', cue: 'Low back stays flat to the floor the whole time.' }
+        ]
+      }
+    ]
+  },
+  B: {
+    title: 'Day B — Pull Focus',
+    sub: '~35-40 min. Back, biceps, rear delts, core.',
+    sections: [
+      {
+        label: 'Warm-up',
+        exercises: [
+          { name: 'Prone Y-T-W', sets: '2 x 10 each', cue: 'No weight. Wake up mid and lower traps.' },
+          { name: 'Wall Slide', sets: '2 x 10', cue: 'Back flat to wall, blades down as arms go up.' }
+        ]
+      },
+      {
+        label: 'Back',
+        exercises: [
+          { name: 'Chest Supported DB Row', sets: '4 x 10', cue: 'Drive elbows back, pause and squeeze at top.' },
+          { name: 'Landmine Row', sets: '3 x 10/side', cue: 'Drive elbow back and up. Full stretch at the bottom.' }
+        ]
+      },
+      {
+        label: 'Rear Delts',
+        exercises: [
+          { name: 'Prone Reverse Fly', sets: '3 x 15', cue: 'Chest supported on bench. Lead with pinkies, slow on the way down.' }
+        ]
+      },
+      {
+        label: 'Biceps',
+        exercises: [
+          { name: 'DB Hammer Curl', sets: '3 x 12', cue: 'Neutral grip. Full extension at the bottom, no swinging.' },
+          { name: 'Incline DB Curl', sets: '2 x 12', cue: 'Full stretch at the bottom, slow and controlled.' }
+        ]
+      },
+      {
+        label: 'Core',
+        exercises: [
+          { name: 'Cable Pallof Press', sets: '2 x 10/side', cue: 'Brace before you press. Resist the rotation — don\'t let it twist you.' },
+          { name: 'Bear Plank Hold', sets: '3 x 30 sec', cue: 'Same brace pattern as the squat. Breathe.' }
+        ]
+      }
+    ]
+  }
+};
+
+let modalTargetDay = null;
+let modalIsBonus = false;
+let openStrengthDayKey = null;
+
+
+
+function getTodayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function dateKeyFor(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+let todayData = { checks: {}, mood: null };
+let currentMode = 'client';
+let currentView = 'today';
+let currentShoulderWeek = 1;
+
+// ===== SESSION REMINDER =====
+function checkSessionReminder() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu
+  const reminder = document.getElementById('sessionReminder');
+  const title = document.getElementById('sessionReminderTitle');
+  const body = document.getElementById('sessionReminderBody');
+
+  // Sunday night -> reminder for Monday session
+  // Wednesday night -> reminder for Thursday session
+  if (dayOfWeek === 0) {
+    title.textContent = "Upper back session tomorrow — Monday";
+    body.innerHTML = `
+      <div class="session-reminder-list">
+        <div>• Bring water + a small towel</div>
+        <div>• Wear something you can move in — we're doing rows and overhead work</div>
+        <div>• Eat something within 2 hours before — don't come on empty</div>
+        <div>• We're chasing your row numbers from last week — bring the effort</div>
+      </div>
+    `;
+    reminder.classList.add('show');
+  } else if (dayOfWeek === 3) {
+    title.textContent = "Leg day tomorrow — Thursday";
+    body.innerHTML = `
+      <div class="session-reminder-list">
+        <div>• Bring water + a small towel</div>
+        <div>• Hip thrust day — wear something you don't mind being on the floor in</div>
+        <div>• Eat something within 2 hours before — squats on empty are rough</div>
+        <div>• Focus tonight: get good sleep, legs need to be fresh</div>
+      </div>
+    `;
+    reminder.classList.add('show');
+  } else {
+    reminder.classList.remove('show');
+  }
+}
+
+// ===== TODAY DATA =====
+async function loadTodayData() {
+  const key = getTodayKey();
+  try {
+    const result = await window.storage.get('checkin:' + key);
+    if (result && result.value) {
+      todayData = JSON.parse(result.value);
+    }
+  } catch (e) {
+    todayData = { checks: {}, mood: null };
+  }
+  renderToday();
+}
+
+async function saveTodayData() {
+  const key = getTodayKey();
+  try {
+    await window.storage.set('checkin:' + key, JSON.stringify(todayData));
+  } catch (e) {
+    console.error('Save failed', e);
+  }
+  updateStreak();
+}
+
+function renderToday() {
+  document.getElementById('todayDate').textContent = formatDate(getTodayKey());
+  CHECK_KEYS.forEach(k => {
+    const card = document.querySelector(`[data-key="${k}"]`);
+    if (card) card.classList.toggle('done', !!todayData.checks[k]);
+  });
+  if (todayData.mood) {
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.mood === String(todayData.mood));
+    });
+  }
+  updateProgress();
+  checkSessionReminder();
+}
+
+function updateProgress() {
+  const done = CHECK_KEYS.filter(k => todayData.checks[k]).length;
+  const pct = Math.round((done / TOTAL_CHECKS) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${done}/${TOTAL_CHECKS}`;
+  document.getElementById('allDoneBanner').classList.toggle('show', done === TOTAL_CHECKS);
+}
+
+function toggleCheck(card) {
+  const key = card.dataset.key;
+  todayData.checks[key] = !todayData.checks[key];
+  card.classList.toggle('done', todayData.checks[key]);
+  updateProgress();
+  saveTodayData();
+}
+
+function setMood(btn) {
+  const mood = btn.dataset.mood;
+  todayData.mood = mood;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  saveTodayData();
+}
+
+async function updateStreak() {
+  let streak = 0;
+  let d = new Date();
+  for (let i = 0; i < 60; i++) {
+    const dateKey = dateKeyFor(d);
+    try {
+      const result = await window.storage.get('checkin:' + dateKey);
+      if (result && result.value) {
+        const data = JSON.parse(result.value);
+        const doneCount = CHECK_KEYS.filter(k => data.checks && data.checks[k]).length;
+        if (doneCount >= 3) streak++; else break;
+      } else break;
+    } catch (e) { break; }
+    d.setDate(d.getDate() - 1);
+  }
+  document.getElementById('streakCount').textContent = streak;
+}
+
+// ===== HISTORY (CLIENT VIEW) =====
+async function loadHistory() {
+  const weekGrid = document.getElementById('weekGrid');
+  const historyList = document.getElementById('historyList');
+  weekGrid.innerHTML = '';
+  historyList.innerHTML = '';
+
+  const today = new Date();
+  const dayLabels = ['S','M','T','W','T','F','S'];
+  const weekDates = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    weekDates.push(d);
+  }
+
+  for (const d of weekDates) {
+    const dateKey = dateKeyFor(d);
+    const isToday = dateKey === getTodayKey();
+    let doneCount = 0;
+    try {
+      const result = await window.storage.get('checkin:' + dateKey);
+      if (result && result.value) {
+        const data = JSON.parse(result.value);
+        doneCount = CHECK_KEYS.filter(k => data.checks && data.checks[k]).length;
+      }
+    } catch (e) {}
+
+    const dayDiv = document.createElement('div');
+    dayDiv.className = 'week-day';
+    let dotClass = 'week-day-dot';
+    if (isToday) dotClass += ' today';
+    if (doneCount === TOTAL_CHECKS) dotClass += ' complete';
+    else if (doneCount >= 3) dotClass += ' partial';
+
+    dayDiv.innerHTML = `<div class="week-day-label">${dayLabels[d.getDay()]}</div><div class="${dotClass}">${doneCount > 0 ? doneCount : ''}</div>`;
+    weekGrid.appendChild(dayDiv);
+  }
+
+  let hasHistory = false;
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateKey = dateKeyFor(d);
+    try {
+      const result = await window.storage.get('checkin:' + dateKey);
+      if (result && result.value) {
+        const data = JSON.parse(result.value);
+        const doneCount = CHECK_KEYS.filter(k => data.checks && data.checks[k]).length;
+        if (doneCount > 0) {
+          hasHistory = true;
+          const moodEmoji = {1:'😩',2:'😕',3:'😐',4:'🙂',5:'💪'}[data.mood] || '';
+          const item = document.createElement('div');
+          item.className = 'check-card no-click';
+          item.innerHTML = `
+            <div class="check-icon" style="background:var(--light-tan); font-size:14px;">${i === 0 ? 'Today' : d.toLocaleDateString('en-US',{weekday:'short'})}</div>
+            <div class="check-text">
+              <div class="check-title">${formatDate(dateKey)}</div>
+              <div class="check-sub">${doneCount}/${TOTAL_CHECKS} completed ${moodEmoji ? '· ' + moodEmoji : ''}</div>
+            </div>`;
+          historyList.appendChild(item);
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (!hasHistory) {
+    historyList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><div>No check-ins yet. Start today!</div></div>`;
+  }
+}
+
+// ===== MICRO RESETS =====
+function getWeekStartKey() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(d.setDate(diff));
+  return dateKeyFor(monday);
+}
+
+let microResetState = {};
+
+async function loadMicroResets() {
+  const weekKey = getWeekStartKey();
+  try {
+    const result = await window.storage.get('microresets:' + weekKey);
+    if (result && result.value) microResetState = JSON.parse(result.value);
+    else microResetState = {};
+  } catch (e) {
+    microResetState = {};
+  }
+  renderMicroResets();
+}
+
+function renderMicroResets() {
+  const row = document.getElementById('microResetRow');
+  row.innerHTML = '';
+  const todayKey = getTodayKey();
+  MICRO_RESETS.forEach(reset => {
+    const doneToday = microResetState[todayKey] && microResetState[todayKey][reset.id];
+    const card = document.createElement('div');
+    card.className = 'micro-reset-card' + (doneToday ? ' done' : '');
+    card.innerHTML = `
+      <div class="micro-reset-icon">${reset.icon}</div>
+      <div class="micro-reset-name">${reset.name}</div>
+      <div class="micro-reset-time">${reset.time}</div>
+    `;
+    card.onclick = () => toggleMicroReset(reset.id);
+    row.appendChild(card);
+  });
+  updateMicroResetCount();
+}
+
+async function toggleMicroReset(id) {
+  const todayKey = getTodayKey();
+  if (!microResetState[todayKey]) microResetState[todayKey] = {};
+  microResetState[todayKey][id] = !microResetState[todayKey][id];
+  const weekKey = getWeekStartKey();
+  try {
+    await window.storage.set('microresets:' + weekKey, JSON.stringify(microResetState));
+  } catch (e) {}
+  renderMicroResets();
+}
+
+function updateMicroResetCount() {
+  let count = 0;
+  Object.values(microResetState).forEach(day => {
+    count += Object.values(day).filter(Boolean).length;
+  });
+  const el = document.getElementById('microResetCount');
+  if (el) el.textContent = count;
+}
+
+// ===== STRENGTH DAYS =====
+async function getStrengthWeekData() {
+  const weekKey = getWeekStartKey();
+  try {
+    const result = await window.storage.get('strengthdays:' + weekKey);
+    if (result && result.value) return JSON.parse(result.value);
+  } catch (e) {}
+  return {};
+}
+
+function openStrengthDay(key) {
+  openStrengthDayKey = key;
+  const day = STRENGTH_DAYS[key];
+  document.getElementById('strengthModalTitle').textContent = day.title;
+  document.getElementById('strengthModalSub').textContent = day.sub;
+  const list = document.getElementById('strengthExerciseList');
+  list.innerHTML = '';
+  day.sections.forEach(section => {
+    const sectionHeader = document.createElement('div');
+    sectionHeader.style.cssText = 'font-size:12px; font-weight:600; color:var(--mid-green); margin:12px 0 6px; text-transform:uppercase; letter-spacing:0.03em;';
+    sectionHeader.textContent = section.label;
+    list.appendChild(sectionHeader);
+    section.exercises.forEach(ex => {
+      const item = document.createElement('div');
+      item.className = 'exercise-item';
+      item.innerHTML = `
+        <div class="exercise-name">${ex.name}</div>
+        <div class="exercise-sets">${ex.sets}</div>
+        <div class="exercise-cue">${ex.cue}</div>
+      `;
+      list.appendChild(item);
+    });
+  });
+  document.getElementById('strengthModalOverlay').classList.add('show');
+}
+
+function closeStrengthModal() {
+  document.getElementById('strengthModalOverlay').classList.remove('show');
+  openStrengthDayKey = null;
+}
+
+function closeStrengthModalOnOverlay(e) {
+  if (e.target.id === 'strengthModalOverlay') closeStrengthModal();
+}
+
+async function markStrengthDayDone() {
+  if (!openStrengthDayKey) return;
+  const weekKey = getWeekStartKey();
+  const weekData = await getStrengthWeekData();
+  weekData[openStrengthDayKey] = true;
+  try {
+    await window.storage.set('strengthdays:' + weekKey, JSON.stringify(weekData));
+  } catch (e) {}
+  await updateStrengthDayCount();
+  closeStrengthModal();
+}
+
+async function updateStrengthDayCount() {
+  const weekData = await getStrengthWeekData();
+  const count = Object.values(weekData).filter(Boolean).length;
+  const el = document.getElementById('strengthDayCount');
+  if (el) el.textContent = count + '/2';
+}
+
+// ===== CYCLE TRACKING =====
+// Default: period started 2 days ago (set by Christin since she mentioned Leanne is currently on it)
+const DEFAULT_CYCLE_LENGTH = 28;
+const DEFAULT_PERIOD_LENGTH = 5;
+
+function getDefaultPeriodStart() {
+  const d = new Date();
+  d.setDate(d.getDate() - 2);
+  return dateKeyFor(d);
+}
+
+async function getCycleData() {
+  try {
+    const result = await window.storage.get('cycle:current');
+    if (result && result.value) return JSON.parse(result.value);
+  } catch (e) {}
+  // Initialize with default — period started 2 days ago
+  const initial = { periodStart: getDefaultPeriodStart() };
+  try {
+    await window.storage.set('cycle:current', JSON.stringify(initial));
+  } catch (e) {}
+  return initial;
+}
+
+function getCyclePhase(periodStart) {
+  const start = new Date(periodStart + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const dayNum = Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
+  const cycleDay = ((dayNum - 1) % DEFAULT_CYCLE_LENGTH) + 1;
+
+  if (cycleDay <= DEFAULT_PERIOD_LENGTH) {
+    return {
+      phase: 'period',
+      dayInPhase: cycleDay,
+      icon: '🔴',
+      title: `Period — Day ${cycleDay}`,
+      sub: 'Bloating and achiness are normal — tap for what helps',
+      cycleDay
+    };
+  } else if (cycleDay <= 13) {
+    return {
+      phase: 'follicular',
+      dayInPhase: cycleDay - DEFAULT_PERIOD_LENGTH,
+      icon: '🌱',
+      title: 'Building energy',
+      sub: 'Energy usually climbs from here — good window to push training',
+      cycleDay
+    };
+  } else if (cycleDay <= 16) {
+    return {
+      phase: 'ovulation',
+      dayInPhase: cycleDay - 13,
+      icon: '⚡',
+      title: 'Peak energy window',
+      sub: 'Often the strongest few days of the month — good time for PR attempts',
+      cycleDay
+    };
+  } else {
+    return {
+      phase: 'luteal',
+      dayInPhase: cycleDay - 16,
+      icon: '🌙',
+      title: 'Pre-period — energy dipping',
+      sub: 'Cravings and lower energy are normal here — fuel accordingly',
+      cycleDay
+    };
+  }
+}
+
+function getCyclePhaseContent(phaseData) {
+  if (phaseData.phase === 'period') {
+    return `
+      <div class="exercise-item">
+        <div class="exercise-name">Why you feel bloated and achy</div>
+        <div class="exercise-cue">Your body is holding onto extra water and your progesterone is dropping — that's what causes the bloat and the dull achy feeling. It's normal and it passes in a few days.</div>
+      </div>
+      <div class="exercise-item">
+        <div class="exercise-name">Eat more right now — especially carbs</div>
+        <div class="exercise-cue">This is not the week to under-eat. Your body is burning more energy than usual. Add an extra serving of rice, potato, oats, or fruit to your meals. Cravings are your body asking for fuel — listen to it.</div>
+      </div>
+      <div class="exercise-item">
+        <div class="exercise-name">Training this week</div>
+        <div class="exercise-cue">Quick resets are fine every day. Strength days and runs are optional this week — only do them if you genuinely feel good. Listening to your body is the win, not pushing through.</div>
+      </div>
+    `;
+  } else if (phaseData.phase === 'follicular') {
+    return `
+      <div class="exercise-item">
+        <div class="exercise-name">Energy is climbing</div>
+        <div class="exercise-cue">As your period ends your energy typically picks back up. This is usually a good stretch to feel strong in the gym and on runs.</div>
+      </div>
+      <div class="exercise-item">
+        <div class="exercise-name">Training this week</div>
+        <div class="exercise-cue">Good window to hit both strength days if you can. Runs should feel easier than they did on your period.</div>
+      </div>
+    `;
+  } else if (phaseData.phase === 'ovulation') {
+    return `
+      <div class="exercise-item">
+        <div class="exercise-name">This is usually your strongest window</div>
+        <div class="exercise-cue">Many people feel their best strength and energy right around now. If you've been wanting to push a number, this is a good week for it.</div>
+      </div>
+      <div class="exercise-item">
+        <div class="exercise-name">Training this week</div>
+        <div class="exercise-cue">Both strength days, runs if you feel like it. Listen to your body, but don't be surprised if things feel easier than usual.</div>
+      </div>
+    `;
+  } else {
+    return `
+      <div class="exercise-item">
+        <div class="exercise-name">Why energy dips here</div>
+        <div class="exercise-cue">Progesterone is rising in the days before your period, which can mean lower energy, more cravings, and feeling more tired than usual. This is normal.</div>
+      </div>
+      <div class="exercise-item">
+        <div class="exercise-name">Eat enough — don't fight the cravings</div>
+        <div class="exercise-cue">Your body needs slightly more food this week. Carb cravings are common — work with them instead of against them.</div>
+      </div>
+      <div class="exercise-item">
+        <div class="exercise-name">Training this week</div>
+        <div class="exercise-cue">Quick resets every day. Strength days and runs only if you feel good — no shame in an easier week here.</div>
+      </div>
+    `;
+  }
+}
+
+async function renderCycleCard() {
+  const data = await getCycleData();
+  const phaseData = getCyclePhase(data.periodStart);
+
+  document.getElementById('cyclePhaseIcon').textContent = phaseData.icon;
+  document.getElementById('cyclePhaseTitle').textContent = phaseData.title;
+  document.getElementById('cyclePhaseSub').textContent = phaseData.sub;
+
+  const dotsEl = document.getElementById('cycleDayDots');
+  dotsEl.innerHTML = '';
+  for (let i = 1; i <= DEFAULT_PERIOD_LENGTH; i++) {
+    const dot = document.createElement('div');
+    let cls = 'cycle-dot';
+    if (phaseData.phase === 'period') {
+      if (i < phaseData.cycleDay) cls += ' past';
+      if (i === phaseData.cycleDay) cls += ' current';
+    } else {
+      cls += ' past';
+    }
+    dot.className = cls;
+    dotsEl.appendChild(dot);
+  }
+}
+
+async function switchToCycleView() {
+  const data = await getCycleData();
+  const phaseData = getCyclePhase(data.periodStart);
+
+  document.getElementById('cycleModalTitle').textContent = `${phaseData.icon} ${phaseData.title}`;
+  document.getElementById('cycleModalSub').textContent = phaseData.sub;
+  document.getElementById('cycleModalBody').innerHTML = getCyclePhaseContent(phaseData);
+  document.getElementById('periodStartInput').value = data.periodStart;
+  document.getElementById('cycleModalOverlay').classList.add('show');
+}
+
+function closeCycleModal() {
+  document.getElementById('cycleModalOverlay').classList.remove('show');
+}
+
+function closeCycleModalOnOverlay(e) {
+  if (e.target.id === 'cycleModalOverlay') closeCycleModal();
+}
+
+async function savePeriodStart() {
+  const newDate = document.getElementById('periodStartInput').value;
+  if (!newDate) return;
+  try {
+    await window.storage.set('cycle:current', JSON.stringify({ periodStart: newDate }));
+  } catch (e) {}
+  await renderCycleCard();
+  closeCycleModal();
+}
+
+// ===== RUN TRACKING =====
+function openRunCheck() {
+  document.getElementById('runModalOverlay').classList.add('show');
+}
+
+function closeRunModal() {
+  document.getElementById('runModalOverlay').classList.remove('show');
+}
+
+function closeRunModalOnOverlay(e) {
+  if (e.target.id === 'runModalOverlay') closeRunModal();
+}
+
+async function markRunDone() {
+  const todayKey = getTodayKey();
+  try {
+    const result = await window.storage.get('checkin:' + todayKey);
+    let data = { checks: {}, mood: null };
+    if (result && result.value) data = JSON.parse(result.value);
+    data.ranToday = true;
+    await window.storage.set('checkin:' + todayKey, JSON.stringify(data));
+  } catch (e) {}
+  closeRunModal();
+}
+
+async function initShoulderTracker() {
+  await loadMicroResets();
+  await updateStrengthDayCount();
+  await renderCycleCard();
+}
+
+// ===== VIEW SWITCHING =====
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('#clientMode .view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('#clientMode .nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.getElementById('nav' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
+  if (view === 'history') loadHistory();
+  if (view === 'shoulder') initShoulderTracker();
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeClient').classList.toggle('active', mode === 'client');
+  document.getElementById('modeCoach').classList.toggle('active', mode === 'coach');
+  document.getElementById('clientMode').style.display = mode === 'client' ? 'block' : 'none';
+  document.getElementById('coachMode').style.display = mode === 'coach' ? 'block' : 'none';
+  if (mode === 'coach') loadCoachDashboard();
+}
+
+// ===== COACH DASHBOARD =====
+async function loadCoachDashboard() {
+  const today = new Date();
+  let allDays = [];
+  let loggedDays = 0;
+  let totalChecksSum = 0;
+  const skipCounts = {};
+  CHECK_KEYS.forEach(k => skipCounts[k] = 0);
+  let shoulderDoneTotal = 0;
+  let shoulderPossibleTotal = 0;
+
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateKey = dateKeyFor(d);
+    let dayData = null;
+    try {
+      const result = await window.storage.get('checkin:' + dateKey);
+      if (result && result.value) dayData = JSON.parse(result.value);
+    } catch (e) {}
+
+    if (dayData) {
+      loggedDays++;
+      const doneCount = CHECK_KEYS.filter(k => dayData.checks && dayData.checks[k]).length;
+      totalChecksSum += doneCount;
+      CHECK_KEYS.forEach(k => {
+        if (!(dayData.checks && dayData.checks[k])) skipCounts[k]++;
+      });
+    }
+    allDays.push({ dateKey, date: d, data: dayData, i });
+  }
+
+  // streak
+  let streak = 0;
+  for (const day of allDays) {
+    if (day.data) {
+      const doneCount = CHECK_KEYS.filter(k => day.data.checks && day.data.checks[k]).length;
+      if (doneCount >= 3) streak++; else break;
+    } else break;
+  }
+
+  // strength days + micro resets this week
+  const strengthData = await getStrengthWeekData();
+  shoulderDoneTotal = Object.values(strengthData).filter(Boolean).length;
+  shoulderPossibleTotal = 2;
+
+  document.getElementById('coachStreak').textContent = streak;
+  document.getElementById('coachAvgChecks').textContent = loggedDays > 0 ? (totalChecksSum / loggedDays).toFixed(1) + '/6' : '0/6';
+  document.getElementById('coachConsistency').textContent = Math.round((loggedDays / 14) * 100) + '%';
+  document.getElementById('coachShoulderRate').textContent = shoulderPossibleTotal > 0 ? Math.round((shoulderDoneTotal / shoulderPossibleTotal) * 100) + '%' : '—';
+
+  // Alerts
+  const alertsEl = document.getElementById('coachAlerts');
+  alertsEl.innerHTML = '';
+  const recentDays = allDays.slice(0, 5).filter(d => d.data);
+  const recentMoods = recentDays.filter(d => d.data.mood).map(d => parseInt(d.data.mood));
+  const avgRecentMood = recentMoods.length > 0 ? recentMoods.reduce((a,b)=>a+b,0) / recentMoods.length : null;
+
+  if (loggedDays === 0) {
+    alertsEl.innerHTML = `<div class="alert-card"><div class="alert-icon">👋</div><div class="alert-text"><strong>No check-ins yet</strong>Leanne hasn't started logging. Worth a quick nudge to open the app.</div></div>`;
+  } else {
+    if (loggedDays < 7) {
+      alertsEl.innerHTML += `<div class="alert-card"><div class="alert-icon">📉</div><div class="alert-text"><strong>Low logging — only ${loggedDays}/14 days</strong>She may be forgetting to check in, not necessarily skipping the basics.</div></div>`;
+    }
+    if (avgRecentMood !== null && avgRecentMood <= 2.5) {
+      alertsEl.innerHTML += `<div class="alert-card danger"><div class="alert-icon">⚠️</div><div class="alert-text"><strong>Mood trending low this week</strong>Recent energy checks are running low — worth checking in on how she's actually doing, not just training load.</div></div>`;
+    }
+    if (skipCounts['shoulders'] >= 8) {
+      alertsEl.innerHTML += `<div class="alert-card"><div class="alert-icon">🤸</div><div class="alert-text"><strong>Shoulder mobility being skipped most</strong>This is the one most tied to her pressing pattern — worth reinforcing why it matters next session.</div></div>`;
+    }
+  }
+
+  // Pattern breakdown
+  const patternEl = document.getElementById('patternBreakdown');
+  patternEl.innerHTML = '';
+  const sortedSkips = CHECK_KEYS.map(k => ({ key: k, skips: skipCounts[k], rate: loggedDays > 0 ? Math.round(((loggedDays - skipCounts[k]) / loggedDays) * 100) : 0 }))
+    .sort((a,b) => b.skips - a.skips);
+
+  sortedSkips.forEach(item => {
+    const color = item.rate >= 70 ? 'var(--done)' : item.rate >= 40 ? 'var(--amber)' : 'var(--red)';
+    const row = document.createElement('div');
+    row.className = 'pattern-row';
+    row.innerHTML = `
+      <div class="pattern-name">${CHECK_LABELS[item.key]}</div>
+      <div class="pattern-bar-bg"><div class="pattern-bar-fill" style="width:${item.rate}%; background:${color};"></div></div>
+      <div class="pattern-pct">${item.rate}%</div>
+    `;
+    patternEl.appendChild(row);
+  });
+
+  // Mood trend
+  const barsEl = document.getElementById('moodTrendBars');
+  const labelsEl = document.getElementById('moodTrendLabels');
+  barsEl.innerHTML = '';
+  labelsEl.innerHTML = '';
+  const last7 = allDays.slice(0, 7).reverse();
+  last7.forEach(day => {
+    const mood = day.data && day.data.mood ? parseInt(day.data.mood) : 0;
+    const heightPct = mood > 0 ? (mood / 5) * 100 : 8;
+    const bar = document.createElement('div');
+    bar.className = 'mood-trend-bar' + (mood === 0 ? ' no-data' : '');
+    bar.style.height = heightPct + '%';
+    barsEl.appendChild(bar);
+
+    const label = document.createElement('span');
+    label.textContent = day.date.toLocaleDateString('en-US', {weekday:'narrow'});
+    labelsEl.appendChild(label);
+  });
+
+  // Daily log
+  const logEl = document.getElementById('coachHistoryList');
+  logEl.innerHTML = '';
+  let hasAny = false;
+  allDays.forEach(day => {
+    if (day.data) {
+      hasAny = true;
+      const doneCount = CHECK_KEYS.filter(k => day.data.checks && day.data.checks[k]).length;
+      const missed = CHECK_KEYS.filter(k => !(day.data.checks && day.data.checks[k])).map(k => CHECK_LABELS[k]);
+      const moodEmoji = {1:'😩',2:'😕',3:'😐',4:'🙂',5:'💪'}[day.data.mood] || '—';
+      const item = document.createElement('div');
+      item.className = 'check-card no-click';
+      item.innerHTML = `
+        <div class="check-icon" style="background:var(--light-tan); font-size:13px;">${doneCount}/6</div>
+        <div class="check-text">
+          <div class="check-title">${formatDate(day.dateKey)} <span style="font-weight:400; color:var(--text-mid);">${moodEmoji}</span></div>
+          <div class="check-sub">${missed.length > 0 ? 'Missed: ' + missed.join(', ') : 'Everything done'}</div>
+        </div>`;
+      logEl.appendChild(item);
+    }
+  });
+  if (!hasAny) {
+    logEl.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><div>No data yet</div></div>`;
+  }
+}
+
+loadTodayData();
+updateStreak();
+</script>
+
+</body>
+</html>
