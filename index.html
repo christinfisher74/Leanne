@@ -616,6 +616,95 @@
     line-height: 1.4;
   }
 
+  /* TIMER */
+  .timer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .timer-btn {
+    background: var(--dark-green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .timer-btn:active { transform: scale(0.96); }
+  .timer-btn.running { background: var(--amber); }
+  .timer-btn.done { background: var(--done); }
+
+  .timer-display {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-dark);
+    font-variant-numeric: tabular-nums;
+    min-width: 42px;
+  }
+
+  .timer-display.running { color: var(--mid-green); }
+
+  /* BREATHING DECOMPRESS */
+  .breathe-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0 16px;
+  }
+
+  .breathe-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: var(--light-tan);
+    border: 2px solid var(--olive);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0.7);
+    transition: transform 4s ease-in-out, background 4s ease-in-out;
+  }
+
+  .breathe-circle.inhale {
+    transform: scale(1.15);
+    background: var(--done-bg);
+    transition: transform 4s ease-in-out, background 4s ease-in-out;
+  }
+
+  .breathe-circle.hold {
+    transform: scale(1.15);
+    transition: transform 0.3s ease;
+  }
+
+  .breathe-circle.exhale {
+    transform: scale(0.7);
+    background: var(--light-tan);
+    transition: transform 6s ease-in-out, background 6s ease-in-out;
+  }
+
+  .breathe-circle span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+  .breathe-timer {
+    margin-top: 16px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-dark);
+    font-variant-numeric: tabular-nums;
+  }
+
   .modal-done-btn {
     width: 100%;
     background: var(--dark-green);
@@ -766,13 +855,14 @@
 
   .micro-reset-card {
     flex: 0 0 auto;
-    width: 108px;
+    width: 116px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 12px 10px;
     text-align: center;
     cursor: pointer;
+    transition: all 0.15s ease;
   }
 
   .micro-reset-card.done {
@@ -780,9 +870,23 @@
     border-color: var(--done);
   }
 
+  .micro-reset-card.running {
+    background: var(--amber-bg);
+    border-color: var(--amber);
+  }
+
   .micro-reset-icon { font-size: 20px; margin-bottom: 4px; }
   .micro-reset-name { font-size: 11.5px; font-weight: 600; color: var(--text-dark); line-height: 1.3; }
-  .micro-reset-time { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+  .micro-reset-time {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .micro-reset-card.running .micro-reset-time { color: var(--amber); }
+  .micro-reset-card.done .micro-reset-time { color: var(--done); }
 
   /* STRENGTH DAY CARDS */
   .strength-day-card {
@@ -897,6 +1001,11 @@
           <div class="check-card" data-key="dinner" onclick="toggleCheck(this)">
             <div class="check-icon">🍽️</div>
             <div class="check-text"><div class="check-title">Ate dinner</div><div class="check-sub">Refuel after a long day</div></div>
+            <div class="check-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="check-card" data-key="decompress" onclick="openDecompress(); return false;">
+            <div class="check-icon">😮‍💨</div>
+            <div class="check-text"><div class="check-title">Tap here instead of punching someone</div><div class="check-sub">2 minutes. Cheaper than bail money.</div></div>
             <div class="check-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           </div>
         </div>
@@ -1031,24 +1140,63 @@
           <div class="exercise-name">Leg Swings</div>
           <div class="exercise-sets">10 each leg, front-to-back</div>
           <div class="exercise-cue">Hold something for balance. Controlled swings, not max range.</div>
+          <div class="timer-row">
+            <button class="timer-btn" id="btn-run-0" onclick="toggleStopwatch('run-0')">▶ Start</button>
+            <span class="timer-display" id="disp-run-0">0:00</span>
+          </div>
         </div>
         <div class="exercise-item">
           <div class="exercise-name">Walking Lunge</div>
           <div class="exercise-sets">8 each leg</div>
           <div class="exercise-cue">Slow and controlled — wakes up the hips and quads.</div>
+          <div class="timer-row">
+            <button class="timer-btn" id="btn-run-1" onclick="toggleStopwatch('run-1')">▶ Start</button>
+            <span class="timer-display" id="disp-run-1">0:00</span>
+          </div>
         </div>
         <div class="exercise-item">
           <div class="exercise-name">High Knees + Butt Kicks</div>
           <div class="exercise-sets">20 sec each</div>
           <div class="exercise-cue">Light and easy — just get the heart rate up a little before you take off.</div>
+          <div class="timer-row">
+            <button class="timer-btn" id="btn-run-2" onclick="startHoldTimer('run-2', 20)">▶ Start</button>
+            <span class="timer-display" id="disp-run-2">0:20</span>
+          </div>
         </div>
         <div class="exercise-item">
           <div class="exercise-name">Easy first 5 minutes</div>
           <div class="exercise-sets">Slow pace</div>
           <div class="exercise-cue">Ease into your actual pace — don't sprint off the start.</div>
+          <div class="timer-row">
+            <button class="timer-btn" id="btn-run-3" onclick="startHoldTimer('run-3', 300)">▶ Start</button>
+            <span class="timer-display" id="disp-run-3">5:00</span>
+          </div>
         </div>
         <button class="modal-done-btn" id="runDoneBtn" onclick="markRunDone()">Logged — heading out</button>
         <button class="modal-close-btn" onclick="closeRunModal()">Close</button>
+      </div>
+    </div>
+
+    <div class="shoulder-modal-overlay" id="decompressModalOverlay" onclick="closeDecompressOnOverlay(event)">
+      <div class="shoulder-modal">
+        <div class="shoulder-modal-handle"></div>
+        <div class="shoulder-modal-title">😮‍💨 Tap here instead of punching someone</div>
+        <div class="shoulder-modal-sub">2 minutes. Sit down somewhere quiet. Phone face down after you hit start.</div>
+
+        <div class="breathe-container">
+          <div class="breathe-circle" id="breatheCircle">
+            <span id="breatheLabel">Ready</span>
+          </div>
+          <div class="breathe-timer" id="breatheTimer">2:00</div>
+        </div>
+
+        <div class="exercise-item">
+          <div class="exercise-name">Why this actually works</div>
+          <div class="exercise-cue">Your body can't tell the difference between "bad day at work" and "actual danger" — it just knows it's wound up. A slow exhale is the off switch. Not therapy, just biology.</div>
+        </div>
+
+        <button class="modal-done-btn" id="breatheStartBtn" onclick="startBreathing()">Start</button>
+        <button class="modal-close-btn" onclick="closeDecompressModal()">Close</button>
       </div>
     </div>
 
@@ -1137,19 +1285,21 @@
 </div>
 
 <script>
-const CHECK_KEYS = ['water-am', 'breakfast', 'shoulders', 'water-pm', 'lunch', 'dinner'];
+const CHECK_KEYS = ['water-am', 'breakfast', 'shoulders', 'water-pm', 'lunch', 'dinner', 'decompress'];
 const CHECK_LABELS = {
   'water-am': 'Morning water',
   'breakfast': 'Breakfast',
   'shoulders': 'Shoulder mobility',
   'water-pm': 'Midday water',
   'lunch': 'Lunch',
-  'dinner': 'Dinner'
+  'dinner': 'Dinner',
+  'decompress': 'Decompress'
 };
 const TOTAL_CHECKS = CHECK_KEYS.length;
 
 // Quick resets — can do anywhere, several driving-friendly
 const MICRO_RESETS = [
+  { id: 'shoulder-retract', icon: '🎯', name: 'Shoulder retractions', time: '30 sec', cue: 'Pull both shoulder blades back and down, hold 2 sec, release. Repeat for the whole time.' },
   { id: 'wall-push', icon: '🧱', name: 'Wall elbow push', time: '1 min', cue: 'Forearms on a wall or doorframe. Push in, feel upper back engage. 5 sec hold x 5.' },
   { id: 'shoulder-rolls', icon: '🔄', name: 'Shoulder rolls', time: '30 sec', cue: 'Big slow circles, both directions. Can do this at red lights.' },
   { id: 'chest-opener', icon: '🙆', name: 'Chest opener', time: '30 sec', cue: 'Clasp hands behind back, squeeze blades together, breathe into the stretch. Driving-friendly — do it at a stop.' },
@@ -1467,6 +1617,7 @@ function getWeekStartKey() {
 }
 
 let microResetState = {};
+let microResetTimers = {};
 
 async function loadMicroResets() {
   const weekKey = getWeekStartKey();
@@ -1486,28 +1637,74 @@ function renderMicroResets() {
   const todayKey = getTodayKey();
   MICRO_RESETS.forEach(reset => {
     const doneToday = microResetState[todayKey] && microResetState[todayKey][reset.id];
+    const seconds = parseDurationSeconds(reset.time);
     const card = document.createElement('div');
     card.className = 'micro-reset-card' + (doneToday ? ' done' : '');
+    card.id = 'mr-card-' + reset.id;
     card.innerHTML = `
       <div class="micro-reset-icon">${reset.icon}</div>
       <div class="micro-reset-name">${reset.name}</div>
-      <div class="micro-reset-time">${reset.time}</div>
+      <div class="micro-reset-time" id="mr-time-${reset.id}">${doneToday ? '✓ Done' : (seconds ? formatTime(seconds) : reset.time)}</div>
     `;
-    card.onclick = () => toggleMicroReset(reset.id);
+    card.onclick = () => handleMicroResetTap(reset.id, seconds);
     row.appendChild(card);
   });
   updateMicroResetCount();
 }
 
-async function toggleMicroReset(id) {
+function handleMicroResetTap(id, seconds) {
+  const todayKey = getTodayKey();
+  const doneToday = microResetState[todayKey] && microResetState[todayKey][id];
+
+  if (doneToday) {
+    // tapping a completed card un-marks it, in case of mis-tap
+    microResetState[todayKey][id] = false;
+    saveMicroResetState();
+    renderMicroResets();
+    return;
+  }
+
+  if (microResetTimers[id]) return; // already counting down
+
+  if (!seconds) {
+    // no parseable duration — just mark done on tap (e.g. band pull-apart by reps)
+    markMicroResetDone(id);
+    return;
+  }
+
+  const card = document.getElementById('mr-card-' + id);
+  const timeEl = document.getElementById('mr-time-' + id);
+  card.classList.add('running');
+  let remaining = seconds;
+  timeEl.textContent = formatTime(remaining);
+
+  microResetTimers[id] = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(microResetTimers[id]);
+      delete microResetTimers[id];
+      card.classList.remove('running');
+      if (navigator.vibrate) navigator.vibrate(200);
+      markMicroResetDone(id);
+    } else {
+      timeEl.textContent = formatTime(remaining);
+    }
+  }, 1000);
+}
+
+function markMicroResetDone(id) {
   const todayKey = getTodayKey();
   if (!microResetState[todayKey]) microResetState[todayKey] = {};
-  microResetState[todayKey][id] = !microResetState[todayKey][id];
+  microResetState[todayKey][id] = true;
+  saveMicroResetState();
+  renderMicroResets();
+}
+
+async function saveMicroResetState() {
   const weekKey = getWeekStartKey();
   try {
     await window.storage.set('microresets:' + weekKey, JSON.stringify(microResetState));
   } catch (e) {}
-  renderMicroResets();
 }
 
 function updateMicroResetCount() {
@@ -1517,6 +1714,112 @@ function updateMicroResetCount() {
   });
   const el = document.getElementById('microResetCount');
   if (el) el.textContent = count;
+}
+
+// ===== TIMER ENGINE =====
+const activeTimers = {};
+
+function parseDurationSeconds(setsText) {
+  // Detects patterns like "30 sec", "45sec", "2 min", "5 sec hold" inside the sets string
+  const minMatch = setsText.match(/(\d+)\s*min/i);
+  if (minMatch) return parseInt(minMatch[1]) * 60;
+  const secMatch = setsText.match(/(\d+)\s*sec/i);
+  if (secMatch) return parseInt(secMatch[1]);
+  return null;
+}
+
+function renderTimerRow(timerId, seconds) {
+  if (seconds) {
+    // Timed hold — counts down from the detected duration
+    return `
+      <div class="timer-row">
+        <button class="timer-btn" id="btn-${timerId}" onclick="startHoldTimer('${timerId}', ${seconds})">▶ Start</button>
+        <span class="timer-display" id="disp-${timerId}">${formatTime(seconds)}</span>
+      </div>
+    `;
+  } else {
+    // Rep-based — counts up as a rest/work stopwatch she starts and stops herself
+    return `
+      <div class="timer-row">
+        <button class="timer-btn" id="btn-${timerId}" onclick="toggleStopwatch('${timerId}')">▶ Start</button>
+        <span class="timer-display" id="disp-${timerId}">0:00</span>
+      </div>
+    `;
+  }
+}
+
+function formatTime(totalSeconds) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function startHoldTimer(timerId, totalSeconds) {
+  if (activeTimers[timerId]) return; // already running
+  const btn = document.getElementById('btn-' + timerId);
+  const disp = document.getElementById('disp-' + timerId);
+  if (!btn || !disp) return;
+
+  btn.classList.add('running');
+  btn.textContent = '⏸ Running';
+  disp.classList.add('running');
+
+  let remaining = totalSeconds;
+  disp.textContent = formatTime(remaining);
+
+  activeTimers[timerId] = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(activeTimers[timerId]);
+      delete activeTimers[timerId];
+      disp.textContent = 'Done!';
+      disp.classList.remove('running');
+      btn.classList.remove('running');
+      btn.classList.add('done');
+      btn.textContent = '✓ Done';
+      if (navigator.vibrate) navigator.vibrate(200);
+    } else {
+      disp.textContent = formatTime(remaining);
+    }
+  }, 1000);
+}
+
+function toggleStopwatch(timerId) {
+  const btn = document.getElementById('btn-' + timerId);
+  const disp = document.getElementById('disp-' + timerId);
+  if (!btn || !disp) return;
+
+  if (activeTimers[timerId]) {
+    // stop it
+    clearInterval(activeTimers[timerId].interval);
+    delete activeTimers[timerId];
+    btn.classList.remove('running');
+    btn.classList.add('done');
+    btn.textContent = '✓ Stopped';
+    disp.classList.remove('running');
+    return;
+  }
+
+  btn.classList.add('running');
+  btn.textContent = '⏸ Stop';
+  disp.classList.add('running');
+
+  let elapsed = 0;
+  const interval = setInterval(() => {
+    elapsed++;
+    disp.textContent = formatTime(elapsed);
+  }, 1000);
+
+  activeTimers[timerId] = { interval };
+}
+
+function initTimers(container) {
+  // Clear any stale timers from a previous modal open
+  Object.keys(activeTimers).forEach(id => {
+    if (activeTimers[id].interval) clearInterval(activeTimers[id].interval);
+    else clearInterval(activeTimers[id]);
+    delete activeTimers[id];
+  });
 }
 
 // ===== STRENGTH DAYS =====
@@ -1536,23 +1839,29 @@ function openStrengthDay(key) {
   document.getElementById('strengthModalSub').textContent = day.sub;
   const list = document.getElementById('strengthExerciseList');
   list.innerHTML = '';
+  let exIndex = 0;
   day.sections.forEach(section => {
     const sectionHeader = document.createElement('div');
     sectionHeader.style.cssText = 'font-size:12px; font-weight:600; color:var(--mid-green); margin:12px 0 6px; text-transform:uppercase; letter-spacing:0.03em;';
     sectionHeader.textContent = section.label;
     list.appendChild(sectionHeader);
     section.exercises.forEach(ex => {
+      const timerId = `strength-${key}-${exIndex}`;
+      exIndex++;
+      const seconds = parseDurationSeconds(ex.sets);
       const item = document.createElement('div');
       item.className = 'exercise-item';
       item.innerHTML = `
         <div class="exercise-name">${ex.name}</div>
         <div class="exercise-sets">${ex.sets}</div>
         <div class="exercise-cue">${ex.cue}</div>
+        ${renderTimerRow(timerId, seconds)}
       `;
       list.appendChild(item);
     });
   });
   document.getElementById('strengthModalOverlay').classList.add('show');
+  initTimers(list);
 }
 
 function closeStrengthModal() {
@@ -1762,8 +2071,134 @@ async function savePeriodStart() {
   closeCycleModal();
 }
 
+// ===== DECOMPRESS BREATHING =====
+let breatheInterval = null;
+let breatheCycleTimeout = null;
+let breatheTotalSeconds = 120;
+
+function openDecompress() {
+  resetBreathingUI();
+  document.getElementById('decompressModalOverlay').classList.add('show');
+}
+
+function closeDecompressModal() {
+  stopBreathing();
+  document.getElementById('decompressModalOverlay').classList.remove('show');
+}
+
+function closeDecompressOnOverlay(e) {
+  if (e.target.id === 'decompressModalOverlay') closeDecompressModal();
+}
+
+function resetBreathingUI() {
+  stopBreathing();
+  const circle = document.getElementById('breatheCircle');
+  const label = document.getElementById('breatheLabel');
+  const timerEl = document.getElementById('breatheTimer');
+  const btn = document.getElementById('breatheStartBtn');
+  circle.className = 'breathe-circle';
+  label.textContent = 'Ready';
+  timerEl.textContent = '2:00';
+  btn.textContent = 'Start';
+  btn.onclick = startBreathing;
+}
+
+function stopBreathing() {
+  if (breatheInterval) { clearInterval(breatheInterval); breatheInterval = null; }
+  if (breatheCycleTimeout) { clearTimeout(breatheCycleTimeout); breatheCycleTimeout = null; }
+}
+
+function startBreathing() {
+  const circle = document.getElementById('breatheCircle');
+  const label = document.getElementById('breatheLabel');
+  const timerEl = document.getElementById('breatheTimer');
+  const btn = document.getElementById('breatheStartBtn');
+
+  btn.textContent = 'Pause';
+  btn.onclick = pauseBreathing;
+
+  let remaining = breatheTotalSeconds;
+  timerEl.textContent = formatTime(remaining);
+
+  breatheInterval = setInterval(() => {
+    remaining--;
+    timerEl.textContent = formatTime(Math.max(remaining, 0));
+    if (remaining <= 0) {
+      finishBreathing();
+    }
+  }, 1000);
+
+  runBreathCycle();
+}
+
+function pauseBreathing() {
+  stopBreathing();
+  const btn = document.getElementById('breatheStartBtn');
+  btn.textContent = 'Resume';
+  btn.onclick = startBreathing;
+}
+
+function runBreathCycle() {
+  const circle = document.getElementById('breatheCircle');
+  const label = document.getElementById('breatheLabel');
+
+  circle.className = 'breathe-circle inhale';
+  label.textContent = 'Breathe in';
+
+  breatheCycleTimeout = setTimeout(() => {
+    circle.className = 'breathe-circle hold';
+    label.textContent = 'Hold';
+
+    breatheCycleTimeout = setTimeout(() => {
+      circle.className = 'breathe-circle exhale';
+      label.textContent = 'Breathe out';
+
+      breatheCycleTimeout = setTimeout(() => {
+        runBreathCycle(); // loop
+      }, 6000);
+    }, 2000);
+  }, 4000);
+}
+
+async function finishBreathing() {
+  stopBreathing();
+  const circle = document.getElementById('breatheCircle');
+  const label = document.getElementById('breatheLabel');
+  const btn = document.getElementById('breatheStartBtn');
+  circle.className = 'breathe-circle';
+  label.textContent = 'Nobody got hit';
+  btn.textContent = '✓ Marked done — close';
+  btn.onclick = closeDecompressModal;
+
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+  // mark today's decompress check complete
+  const todayKey = getTodayKey();
+  todayData.checks['decompress'] = true;
+  await saveTodayData();
+  renderToday();
+}
+
 // ===== RUN TRACKING =====
 function openRunCheck() {
+  // reset all 4 run timer displays/buttons to fresh state
+  const resets = [
+    { id: 'run-0', label: '0:00' },
+    { id: 'run-1', label: '0:00' },
+    { id: 'run-2', label: '0:20' },
+    { id: 'run-3', label: '5:00' }
+  ];
+  resets.forEach(r => {
+    if (activeTimers[r.id]) {
+      if (activeTimers[r.id].interval) clearInterval(activeTimers[r.id].interval);
+      else clearInterval(activeTimers[r.id]);
+      delete activeTimers[r.id];
+    }
+    const btn = document.getElementById('btn-' + r.id);
+    const disp = document.getElementById('disp-' + r.id);
+    if (btn) { btn.className = 'timer-btn'; btn.textContent = '▶ Start'; }
+    if (disp) { disp.className = 'timer-display'; disp.textContent = r.label; }
+  });
   document.getElementById('runModalOverlay').classList.add('show');
 }
 
@@ -1954,3 +2389,5 @@ updateStreak();
 
 </body>
 </html>
+
+
