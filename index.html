@@ -1044,6 +1044,97 @@
         </div>
       </div>
 
+      <div class="view" id="view-knees">
+        <div class="coach-note" style="margin-bottom:14px;">
+          <div class="coach-note-icon">🦵</div>
+          <div>Knees hurting from doubles = glutes not firing. These fix that. Tap any exercise to start its timer.</div>
+        </div>
+
+        <div class="section-label">Phase 1 — Activation <span class="section-time">— do this first, every session</span></div>
+
+        <div class="check-card no-click" style="flex-direction:column; align-items:flex-start; gap:6px;" id="knee-ex-0">
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="check-icon" style="background:var(--light-tan);">🍑</div>
+            <div class="check-text"><div class="check-title">Glute Bridge</div><div class="check-sub">3 x 15 — squeeze hard 2 sec at top. Chin tucked.</div></div>
+            <div class="knee-done-dot" id="kdot-0"></div>
+          </div>
+          <div class="timer-row"><button class="timer-btn" id="btn-k0" onclick="toggleKneeStopwatch('k0')">▶ Start</button><span class="timer-display" id="disp-k0">0:00</span></div>
+        </div>
+
+        <div class="check-card no-click" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="check-icon" style="background:var(--light-tan);">🦵</div>
+            <div class="check-text"><div class="check-title">Banded Clamshell</div><div class="check-sub">3 x 15/side — band above knees. Control it down.</div></div>
+          </div>
+          <div class="timer-row"><button class="timer-btn" id="btn-k1" onclick="toggleKneeStopwatch('k1')">▶ Start</button><span class="timer-display" id="disp-k1">0:00</span></div>
+        </div>
+
+        <div class="check-card no-click" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="check-icon" style="background:var(--light-tan);">↔️</div>
+            <div class="check-text"><div class="check-title">Banded Lateral Walk</div><div class="check-sub">3 x 10 steps/side — stay low the whole time.</div></div>
+          </div>
+          <div class="timer-row"><button class="timer-btn" id="btn-k2" onclick="toggleKneeStopwatch('k2')">▶ Start</button><span class="timer-display" id="disp-k2">0:00</span></div>
+        </div>
+
+        <div class="check-card no-click" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="check-icon" style="background:var(--light-tan);">🦶</div>
+            <div class="check-text"><div class="check-title">Single Leg Glute Bridge</div><div class="check-sub">3 x 10/side — finds the weak side.</div></div>
+          </div>
+          <div class="timer-row"><button class="timer-btn" id="btn-k3" onclick="toggleKneeStopwatch('k3')">▶ Start</button><span class="timer-display" id="disp-k3">0:00</span></div>
+        </div>
+
+        <div class="section-label" style="margin-top:16px;">Phase 2 — Strength <span class="section-time">— no knee load</span></div>
+
+        <div class="check-card no-click" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="check-icon" style="background:var(--light-tan);">💪</div>
+            <div class="check-text"><div class="check-title">Barbell Hip Thrust</div><div class="check-sub">4 x 10–12 — chin tucked, ribs down. Previous: 185.</div></div>
+          </div>
+          <div class="timer-row"><button class="timer-btn" id="btn-k4" onclick="toggleKneeStopwatch('k4')">▶ Start</button><span class="timer-display" id="disp-k4">0:00</span></div>
+        </div>
+
+        <div class="check-card no-click" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="check-icon" style="background:var(--light-tan);">🏋️</div>
+            <div class="check-text"><div class="check-title">Spanish Squat (band around post)</div><div class="check-sub">3 x 12 — sit back into band. Shins vertical. Zero knee stress.</div></div>
+          </div>
+          <div class="timer-row"><button class="timer-btn" id="btn-k5" onclick="toggleKneeStopwatch('k5')">▶ Start</button><span class="timer-display" id="disp-k5">0:00</span></div>
+        </div>
+
+        <div class="check-card no-click" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="check-icon" style="background:var(--light-tan);">🔗</div>
+            <div class="check-text"><div class="check-title">Cable Kickback</div><div class="check-sub">3 x 15/side — kick straight back. Squeeze at top.</div></div>
+          </div>
+          <div class="timer-row"><button class="timer-btn" id="btn-k6" onclick="toggleKneeStopwatch('k6')">▶ Start</button><span class="timer-display" id="disp-k6">0:00</span></div>
+        </div>
+
+        <div class="section-label" style="margin-top:16px;">At home — off days <span class="section-time">— no equipment, 5 minutes</span></div>
+
+        <div class="check-card no-click" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="check-icon" style="background:var(--light-tan);">🛋️</div>
+            <div class="check-text"><div class="check-title">Glute Bridge Hold</div><div class="check-sub">3 x 30 sec — squeeze and hold. Breathe.</div></div>
+          </div>
+          <div class="timer-row"><button class="timer-btn" id="btn-k7" onclick="startHoldTimer('k7', 30)">▶ Start</button><span class="timer-display" id="disp-k7">0:30</span></div>
+        </div>
+
+        <div class="check-card no-click" style="flex-direction:column; align-items:flex-start; gap:6px;">
+          <div style="display:flex; align-items:center; gap:10px; width:100%;">
+            <div class="check-icon" style="background:var(--light-tan);">🧱</div>
+            <div class="check-text"><div class="check-title">Wall Sit</div><div class="check-sub">3 x 30 sec — back flat, thighs parallel. Breathe.</div></div>
+          </div>
+          <div class="timer-row"><button class="timer-btn" id="btn-k8" onclick="startHoldTimer('k8', 30)">▶ Start</button><span class="timer-display" id="disp-k8">0:30</span></div>
+        </div>
+
+        <div class="coach-note" style="margin-top:14px;">
+          <div class="coach-note-icon">💬</div>
+          <div>Your knees are not broken. The glutes just stopped showing up. These will fix it. — Christin</div>
+        </div>
+      </div>
+
       <div class="view" id="view-shoulder">
 
         <div class="cycle-card" id="cycleCard" onclick="switchToCycleView()">
@@ -1216,7 +1307,10 @@
         <span class="nav-icon">✓</span>Today
       </button>
       <button class="nav-btn" id="navShoulder" onclick="switchView('shoulder')">
-        <span class="nav-icon">🎯</span>Shoulders
+        <span class="nav-icon">🎯</span>Resets
+      </button>
+      <button class="nav-btn" id="navKnees" onclick="switchView('knees')">
+        <span class="nav-icon">🦵</span>Knees
       </button>
       <button class="nav-btn" id="navHistory" onclick="switchView('history')">
         <span class="nav-icon">📅</span>History
@@ -2239,6 +2333,10 @@ function switchView(view) {
   if (view === 'shoulder') initShoulderTracker();
 }
 
+function toggleKneeStopwatch(timerId) {
+  toggleStopwatch(timerId);
+}
+
 function switchMode(mode) {
   currentMode = mode;
   document.getElementById('modeClient').classList.toggle('active', mode === 'client');
@@ -2389,5 +2487,6 @@ updateStreak();
 
 </body>
 </html>
+
 
 
