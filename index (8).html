@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17221e">
+  <title>Leanne | Independent Training Plan</title>
+  <style>
+    :root {
+      --ink: #17221e;
+      --muted: #59665f;
+      --paper: #f7f7f2;
+      --card: #ffffff;
+      --line: #dce2dc;
+      --accent: #496b58;
+      --accent-light: #e8efe9;
+      --warm: #eee9df;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--paper); color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    header {
+      background: var(--ink); color: #fff; padding: 28px 18px 24px;
+    }
+    .wrap { width: min(100% - 28px, 980px); margin: 0 auto; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .13em; font-size: .72rem; opacity: .8; font-weight: 700; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.7rem); line-height: 1.1; margin: 8px 0; }
+    header p { max-width: 680px; margin: 0; color: #e4eae5; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .pill { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); padding: 6px 10px; border-radius: 999px; font-size: .8rem; }
+    main { padding: 22px 0 42px; }
+    .notice {
+      background: var(--accent-light); border: 1px solid #cbd9ce; border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 18px; color: #2b4535;
+    }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .tab {
+      border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 13px 10px;
+      color: var(--ink); font-weight: 750; font-size: .95rem; cursor: pointer;
+    }
+    .tab[aria-selected="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .workout-intro { display:flex; flex-wrap:wrap; justify-content:space-between; gap: 8px; align-items: end; margin: 12px 0 14px; }
+    h2 { margin: 0; font-size: clamp(1.3rem, 3vw, 1.7rem); }
+    .sub { color: var(--muted); margin: 4px 0 0; }
+    .exercise-list { display: grid; gap: 12px; }
+    .exercise {
+      display: grid; grid-template-columns: 42px minmax(0,1fr); gap: 12px;
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px;
+    }
+    .num { width: 38px; height: 38px; display:grid; place-items:center; background: var(--warm); border-radius: 10px; font-weight: 800; }
+    .exercise h3 { margin: 1px 0 4px; font-size: 1.03rem; }
+    .dose { font-size: .86rem; color: var(--accent); font-weight: 750; margin-bottom: 5px; }
+    .cue { margin: 0; color: var(--muted); font-size: .92rem; }
+    .log { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-top: 12px; }
+    label { display:block; font-size:.75rem; color:var(--muted); margin-bottom:4px; }
+    input, textarea {
+      width:100%; border:1px solid var(--line); border-radius:8px; padding:9px;
+      font:inherit; font-size:.85rem; background:#fff; color:var(--ink);
+    }
+    .done { display:flex; align-items:center; gap:8px; margin-top:12px; color:var(--ink); font-size:.85rem; }
+    .done input { width:auto; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:8px; margin: 16px 0; }
+    button.action {
+      border:1px solid var(--accent); background:var(--accent); color:#fff; padding:10px 14px;
+      border-radius:10px; font-weight:700; cursor:pointer;
+    }
+    button.secondary { background:#fff; color:var(--accent); }
+    .notes, .guidance {
+      background:#fff; border:1px solid var(--line); border-radius:14px; padding:15px; margin-top:14px;
+    }
+    .notes h3, .guidance h3 { margin:0 0 8px; }
+    .notes textarea { min-height:84px; resize:vertical; }
+    .foot { color:var(--muted); font-size:.82rem; margin-top:18px; }
+    .hidden { display:none !important; }
+    @media (min-width: 700px) {
+      .exercise-list { grid-template-columns: 1fr 1fr; }
+      .exercise { align-content:start; }
+    }
+    @media (max-width: 430px) {
+      .log { grid-template-columns: 1fr; }
+      .tabs { gap:6px; }
+      .tab { font-size:.88rem; }
+    }
+    @media print {
+      body { background:#fff; }
+      header { background:#fff; color:#000; padding:10px 0; }
+      header p { color:#333; }
+      .wrap { width:100%; }
+      .tabs, .toolbar, .log, .done, .notes textarea { display:none !important; }
+      .exercise-list { grid-template-columns:1fr 1fr; }
+      .exercise, .notice, .guidance, .notes { break-inside:avoid; }
+      .hidden { display:block !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="eyebrow">Feminine Strength Company</div>
+      <h1>Leanne’s Training Plan</h1>
+      <p>Two independent workouts to complement your Monday and Thursday coaching sessions. Train with purpose, track your progress, and adjust to your recovery.</p>
+      <div class="meta">
+        <span class="pill">Workout 1 · Back strength</span>
+        <span class="pill">Workout 2 · Lower body + core</span>
+        <span class="pill">Dumbbells + landmine</span>
+      </div>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="notice">
+      <strong>How to use this plan:</strong> These sessions are supplemental. Schedule them on other days when recovery allows; you do not need to force all four weekly sessions if work fatigue is high. Aim for about 2–3 good reps left at the end of each set.
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Choose workout">
+      <button class="tab" id="tab-back" role="tab" aria-selected="true" aria-controls="panel-back">Workout 1 · Back</button>
+      <button class="tab" id="tab-lower" role="tab" aria-selected="false" aria-controls="panel-lower">Workout 2 · Lower + Core</button>
+    </div>
+
+    <section id="panel-back" role="tabpanel" aria-labelledby="tab-back">
+      <div class="workout-intro">
+        <div><h2>Back Strength</h2><p class="sub">Lats · Mid-back · Rear delts · Biceps</p></div>
+        <span class="pill" style="background:var(--accent-light);color:var(--accent);border-color:var(--line)">Approx. 35–45 min</span>
+      </div>
+      <div class="exercise-list">
+        <article class="exercise">
+          <div class="num">1</div><div>
+            <h3>Landmine Single-Arm Bent-Over Row</h3><div class="dose">3 sets × 8–12 reps per side · Rest 60–90 sec</div>
+            <p class="cue">Brace as needed, keep your torso stable, and avoid twisting to finish each rep.</p>
+            <div class="log"><div><label for="back1-weight">Load</label><input id="back1-weight" placeholder="e.g. 25 lb"></div><div><label for="back1-reps">Reps achieved</label><input id="back1-reps" placeholder="e.g. 10/side"></div><div><label for="back1-rpe">Effort (1–10)</label><input id="back1-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">2</div><div>
+            <h3>Single-Arm Dumbbell Row</h3><div class="dose">3 sets × 10–12 reps per side · Rest 60–90 sec</div>
+            <p class="cue">Support your free hand on a stable surface; pull your elbow toward your hip without rotating your torso.</p>
+            <div class="log"><div><label for="back2-weight">Load</label><input id="back2-weight" placeholder="e.g. 30 lb"></div><div><label for="back2-reps">Reps achieved</label><input id="back2-reps" placeholder="e.g. 12/side"></div><div><label for="back2-rpe">Effort (1–10)</label><input id="back2-rpe" placeholder="e.g. 8"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">3</div><div>
+            <h3>Landmine Bent-Over Row — Two-Hand Grip</h3><div class="dose">3 sets × 10–12 reps · Rest 60–90 sec</div>
+            <p class="cue">Use a comfortable grip and steady hinge; avoid jerking or using excessive torso momentum.</p>
+            <div class="log"><div><label for="back3-weight">Load</label><input id="back3-weight" placeholder="e.g. bar + plates"></div><div><label for="back3-reps">Reps achieved</label><input id="back3-reps" placeholder="e.g. 12"></div><div><label for="back3-rpe">Effort (1–10)</label><input id="back3-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">4</div><div>
+            <h3>Bent-Over Dumbbell Rear-Delt Raise</h3><div class="dose">2–3 sets × 12–15 reps · Rest 45–60 sec</div>
+            <p class="cue">Choose a light load, keep elbows soft, and use a comfortable range. Skip if it brings on pec or shoulder symptoms.</p>
+            <div class="log"><div><label for="back4-weight">Load</label><input id="back4-weight" placeholder="e.g. 5–10 lb"></div><div><label for="back4-reps">Reps achieved</label><input id="back4-reps" placeholder="e.g. 15"></div><div><label for="back4-rpe">Effort (1–10)</label><input id="back4-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">5</div><div>
+            <h3>Dumbbell Hammer Curl</h3><div class="dose">3 sets × 10–12 reps · Rest 45–60 sec</div>
+            <p class="cue">Keep elbows close to your sides and lower the weights under control.</p>
+            <div class="log"><div><label for="back5-weight">Load</label><input id="back5-weight" placeholder="e.g. 15 lb"></div><div><label for="back5-reps">Reps achieved</label><input id="back5-reps" placeholder="e.g. 12"></div><div><label for="back5-rpe">Effort (1–10)</label><input id="back5-rpe" placeholder="e.g. 8"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="panel-lower" role="tabpanel" aria-labelledby="tab-lower" class="hidden">
+      <div class="workout-intro">
+        <div><h2>Lower Body + Core</h2><p class="sub">Quads · Glutes · Hamstrings · Calves · Trunk</p></div>
+        <span class="pill" style="background:var(--accent-light);color:var(--accent);border-color:var(--line)">Approx. 35–45 min</span>
+      </div>
+      <div class="exercise-list">
+        <article class="exercise">
+          <div class="num">1</div><div>
+            <h3>Goblet Box Squat</h3><div class="dose">3 sets × 10–12 reps · Rest 60–90 sec</div>
+            <p class="cue">Use a consistent depth and keep pressure even through both feet.</p>
+            <div class="log"><div><label for="low1-weight">Load</label><input id="low1-weight" placeholder="e.g. 25 lb"></div><div><label for="low1-reps">Reps achieved</label><input id="low1-reps" placeholder="e.g. 12"></div><div><label for="low1-rpe">Effort (1–10)</label><input id="low1-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">2</div><div>
+            <h3>Dumbbell Lateral Lunge</h3><div class="dose">3 sets × 8 reps per side · Rest 60–75 sec</div>
+            <p class="cue">Use a range you can control and sit into the working hip without forcing depth.</p>
+            <div class="log"><div><label for="low2-weight">Load</label><input id="low2-weight" placeholder="e.g. 10–20 lb"></div><div><label for="low2-reps">Reps achieved</label><input id="low2-reps" placeholder="e.g. 8/side"></div><div><label for="low2-rpe">Effort (1–10)</label><input id="low2-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">3</div><div>
+            <h3>Glute Bridge Walkouts</h3><div class="dose">3 sets × 6–10 walkouts · Rest 60 sec</div>
+            <p class="cue">Start in a bridge, take small heel steps away and back, and keep hips controlled. Shorten the walkout if your hips drop.</p>
+            <div class="log"><div><label for="low3-weight">Load</label><input id="low3-weight" placeholder="Bodyweight"></div><div><label for="low3-reps">Walkouts achieved</label><input id="low3-reps" placeholder="e.g. 8"></div><div><label for="low3-rpe">Effort (1–10)</label><input id="low3-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">4</div><div>
+            <h3>Dumbbell Romanian Deadlift</h3><div class="dose">2 sets × 8–10 reps · Rest 75–90 sec</div>
+            <p class="cue">Use a moderate load and crisp hip hinge. Keep volume modest alongside your coached hinge work.</p>
+            <div class="log"><div><label for="low4-weight">Load</label><input id="low4-weight" placeholder="e.g. 25 lb each"></div><div><label for="low4-reps">Reps achieved</label><input id="low4-reps" placeholder="e.g. 10"></div><div><label for="low4-rpe">Effort (1–10)</label><input id="low4-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">5</div><div>
+            <h3>Side-Lying Hip Abduction</h3><div class="dose">3 sets × 12–15 reps per side · Rest 45–60 sec</div>
+            <p class="cue">Keep hips stacked and lift without rolling the pelvis backward.</p>
+            <div class="log"><div><label for="low5-weight">Load</label><input id="low5-weight" placeholder="Bodyweight"></div><div><label for="low5-reps">Reps achieved</label><input id="low5-reps" placeholder="e.g. 15/side"></div><div><label for="low5-rpe">Effort (1–10)</label><input id="low5-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">6</div><div>
+            <h3>Standing Calf Raise</h3><div class="dose">3 sets × 12–15 reps · Rest 45–60 sec</div>
+            <p class="cue">Use stable support if needed and pause briefly at the top.</p>
+            <div class="log"><div><label for="low6-weight">Load</label><input id="low6-weight" placeholder="Bodyweight or dumbbells"></div><div><label for="low6-reps">Reps achieved</label><input id="low6-reps" placeholder="e.g. 15"></div><div><label for="low6-rpe">Effort (1–10)</label><input id="low6-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+        <article class="exercise">
+          <div class="num">7</div><div><h3>Dead Bug</h3><div class="dose">3 sets × 8 reps per side · Rest 45 sec</div>
+            <p class="cue">Keep ribs down and maintain control through the trunk as the opposite arm and leg move.</p>
+            <div class="log"><div><label for="low7-weight">Load</label><input id="low7-weight" placeholder="Bodyweight"></div><div><label for="low7-reps">Reps achieved</label><input id="low7-reps" placeholder="e.g. 8/side"></div><div><label for="low7-rpe">Effort (1–10)</label><input id="low7-rpe" placeholder="e.g. 7"></div></div>
+            <label class="done"><input type="checkbox"> Mark complete</label>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <button class="action" id="print">Print / Save as PDF</button>
+      <button class="action secondary" id="clear">Clear workout log fields</button>
+    </div>
+
+    <div class="notes">
+      <h3>Session notes</h3>
+      <p class="sub">Use this space for energy, recovery, equipment changes, or anything to discuss with Christin.</p>
+      <textarea id="session-notes" placeholder="How did the session feel? Any discomfort or adjustments?"></textarea>
+    </div>
+    <div class="guidance">
+      <h3>Training guidance</h3>
+      <ul>
+        <li>Start around effort level 7/10, leaving about 2–3 good reps in reserve.</li>
+        <li>Progress reps first; increase load only when all reps are controlled.</li>
+        <li>No overhead presses or chest presses are included.</li>
+        <li>Stop any movement that causes pec or shoulder pain, pinching, or worsening tightness; contact Christin to adjust it.</li>
+        <li>These sessions complement your coached workouts. If work fatigue is high, reduce a set or skip an accessory rather than forcing the full session.</li>
+      </ul>
+    </div>
+    <p class="foot">Training plan prepared by Feminine Strength Company. Use only exercises and loads reviewed as appropriate for your setup.</p>
+  </main>
+  <script>
+    const tabs = [
+      {button: document.getElementById('tab-back'), panel: document.getElementById('panel-back')},
+      {button: document.getElementById('tab-lower'), panel: document.getElementById('panel-lower')}
+    ];
+    tabs.forEach((tab, index) => tab.button.addEventListener('click', () => {
+      tabs.forEach((item, i) => {
+        const active = i === index;
+        item.button.setAttribute('aria-selected', active ? 'true' : 'false');
+        item.panel.classList.toggle('hidden', !active);
+      });
+    }));
+    document.getElementById('print').addEventListener('click', () => window.print());
+    document.getElementById('clear').addEventListener('click', () => {
+      document.querySelectorAll('.log input, #session-notes').forEach(input => input.value = '');
+      document.querySelectorAll('.done input').forEach(input => input.checked = false);
+    });
+  </script>
+</body>
+</html>
