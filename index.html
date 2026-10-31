@@ -234,7 +234,10 @@
 
     <div class="toolbar">
       <button class="action" id="print">Print / Save as PDF</button>
-      <button class="action secondary" id="clear">Clear workout log fields</button>
+      <button class="action secondary" id="clear">Clear workout log fields</button>\n
+      <button class="action" id="leanne-save" style="margin-top:10px">Save workout log</button>
+      <p id="leanne-save-status" role="status" style="font-size:12px;color:#657a6d;margin-top:8px">Enter your results, then save your session.</p>
+
     </div>
 
     <div class="notes">
@@ -242,7 +245,16 @@
       <p class="sub">Use this space for energy, recovery, equipment changes, or anything to discuss with Christin.</p>
       <textarea id="session-notes" placeholder="How did the session feel? Any discomfort or adjustments?"></textarea>
     </div>
-    <div class="guidance">
+
+    <div class="notes" style="margin-top:14px">
+      <h3>Overall session rating</h3>
+      <p class="sub">How did the workout feel overall?</p>
+      <select id="overall-session-rating" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;background:white">
+        <option value="">Choose 1–10</option>
+        <option value="1">1/10</option><option value="2">2/10</option><option value="3">3/10</option><option value="4">4/10</option><option value="5">5/10</option><option value="6">6/10</option><option value="7">7/10</option><option value="8">8/10</option><option value="9">9/10</option><option value="10">10/10</option>
+      </select>
+    </div>
+\n    <div class="guidance">
       <h3>Training guidance</h3>
       <ul>
         <li>Start around effort level 7/10, leaving about 2–3 good reps in reserve.</li>
@@ -272,5 +284,51 @@
       document.querySelectorAll('.done input').forEach(input => input.checked = false);
     });
   </script>
-</body>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  const leanneSupabase=window.supabase.createClient("https://mimaexschnbsdnfcluev.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pbWFleHNjaG5ic2RuZmNsdWV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODcyNTgsImV4cCI6MjA5NjE2MzI1OH0.Z6wnsi0u0lXJdrEuefJFmeaHCNROnSRs7z6EZclphrE");
+  (function(){
+    const dateKey=()=>new Date().toISOString().slice(0,10);
+    const fields=()=>[...document.querySelectorAll('.log input, .done input, #session-notes, #overall-session-rating')];
+    function collect(){
+      const values={};
+      fields().forEach((el,i)=>{const key=el.id||'field_'+i;values[key]=el.type==='checkbox'?el.checked:el.value});
+      return {fields:values,updated_at:new Date().toISOString()};
+    }
+    function restore(payload){
+      const values=payload?.fields||{};
+      fields().forEach((el,i)=>{const key=el.id||'field_'+i;if(!(key in values))return;if(el.type==='checkbox')el.checked=!!values[key];else el.value=values[key]??''});
+    }
+    async function saveLeanneSession(){
+      const payload=collect(),date=dateKey();
+      try{localStorage.setItem('leanne_session_'+date,JSON.stringify(payload))}catch(e){}
+      const status=document.getElementById('leanne-save-status');status.textContent='Saving…';
+      try{
+        const {error}=await leanneSupabase.from('client_daily_logs').upsert({client_key:'leanne',log_date:date,payload,updated_at:new Date().toISOString()},{onConflict:'client_key,log_date'});
+        if(error)throw error;
+        status.textContent='Saved to coaching cloud ✓';
+      }catch(error){
+        status.textContent='Saved on this device only. Cloud sync unavailable.';
+        console.warn('Leanne cloud save failed:',error.message);
+      }
+    }
+    async function loadLeanneSession(){
+      const date=dateKey();let restored=false;
+      try{
+        const {data,error}=await leanneSupabase.from('client_daily_logs').select('payload').eq('client_key','leanne').eq('log_date',date).maybeSingle();
+        if(error)throw error;
+        if(data?.payload){restore(data.payload);restored=true}
+      }catch(error){console.warn('Leanne cloud load unavailable:',error.message)}
+      if(!restored){try{const local=JSON.parse(localStorage.getItem('leanne_session_'+date)||'null');if(local)restore(local)}catch(e){}}
+      document.getElementById('leanne-save-status').textContent=restored?'Today’s saved session loaded from cloud.':'Enter your results, then save your session.';
+    }
+    document.getElementById('clear').addEventListener('click',()=>{
+      document.getElementById('leanne-save-status').textContent='Fields cleared. Previously saved cloud entries are unchanged.';
+    });
+    document.getElementById('leanne-save').addEventListener('click',saveLeanneSession);
+    loadLeanneSession();
+  })();
+  </script>
+\n</body>
 </html>
