@@ -240,6 +240,19 @@
 
     </div>
 
+    <section class="notes" id="food-log-card">
+      <h3>Food log</h3>
+      <p class="sub">Add what you ate, with optional protein and calories. No targets to hit.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+        <input id="food-item" placeholder="What did you eat?">
+        <input id="food-protein" type="number" min="0" placeholder="Protein (g)">
+        <input id="food-calories" type="number" min="0" placeholder="Calories">
+        <button class="action" type="button" id="food-add">Add food</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:12px;margin-top:12px"><strong id="food-protein-total">0g protein</strong><span id="food-calorie-total" class="sub">0 calories</span></div>
+      <div id="food-log-list" style="margin-top:8px">Nothing logged yet today.</div>
+    </section>
+
     <div class="notes">
       <h3>Session notes</h3>
       <p class="sub">Use this space for energy, recovery, equipment changes, or anything to discuss with Christin.</p>
@@ -290,15 +303,25 @@
   const leanneSupabase=window.supabase.createClient("https://mimaexschnbsdnfcluev.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pbWFleHNjaG5ic2RuZmNsdWV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1ODcyNTgsImV4cCI6MjA5NjE2MzI1OH0.Z6wnsi0u0lXJdrEuefJFmeaHCNROnSRs7z6EZclphrE");
   (function(){
     const dateKey=()=>new Date().toISOString().slice(0,10);
+    let foodEntries=[];
+    const renderFoodLog=()=>{
+      const list=document.getElementById('food-log-list');
+      if(!list)return;
+      list.innerHTML=foodEntries.length?foodEntries.map((x,i)=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #dce2dc"><span>${String(x.item).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]))}</span><span>${x.protein?x.protein+'g protein':''}${x.protein&&x.calories?' · ':''}${x.calories?x.calories+' cal':''}</span><button type="button" data-food-remove="${i}" aria-label="Remove food entry" style="border:0;background:none;color:#59665f">×</button></div>`).join(''):'Nothing logged yet today.';
+      list.querySelectorAll('[data-food-remove]').forEach(b=>b.onclick=()=>{foodEntries.splice(Number(b.dataset.foodRemove),1);renderFoodLog()});
+      document.getElementById('food-protein-total').textContent=foodEntries.reduce((s,x)=>s+(Number(x.protein)||0),0)+'g protein';
+      document.getElementById('food-calorie-total').textContent=foodEntries.reduce((s,x)=>s+(Number(x.calories)||0),0)+' calories';
+    };
     const fields=()=>[...document.querySelectorAll('.log input, .done input, #session-notes, #overall-session-rating')];
     function collect(){
       const values={};
       fields().forEach((el,i)=>{const key=el.id||'field_'+i;values[key]=el.type==='checkbox'?el.checked:el.value});
-      return {fields:values,updated_at:new Date().toISOString()};
+      return {fields:values,foodEntries:foodEntries,updated_at:new Date().toISOString()};
     }
     function restore(payload){
       const values=payload?.fields||{};
       fields().forEach((el,i)=>{const key=el.id||'field_'+i;if(!(key in values))return;if(el.type==='checkbox')el.checked=!!values[key];else el.value=values[key]??''});
+      foodEntries=Array.isArray(payload?.foodEntries)?payload.foodEntries:[];renderFoodLog();
     }
     async function saveLeanneSession(){
       const payload=collect(),date=dateKey();
@@ -327,6 +350,14 @@
       document.getElementById('leanne-save-status').textContent='Fields cleared. Previously saved cloud entries are unchanged.';
     });
     document.getElementById('leanne-save').addEventListener('click',saveLeanneSession);
+    document.getElementById('food-add').addEventListener('click',()=>{
+      const item=document.getElementById('food-item').value.trim();
+      if(!item){document.getElementById('food-item').focus();return}
+      foodEntries.push({item,protein:Number(document.getElementById('food-protein').value)||0,calories:Number(document.getElementById('food-calories').value)||0});
+      document.getElementById('food-item').value='';document.getElementById('food-protein').value='';document.getElementById('food-calories').value='';
+      renderFoodLog();
+    });
+    renderFoodLog();
     loadLeanneSession();
   })();
   </script>
