@@ -263,8 +263,7 @@
       <h3>Overall session rating</h3>
       <p class="sub">How did the workout feel overall?</p>
       <select id="overall-session-rating" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;background:white">
-        <option value="">Choose 1–10</option>
-        <option value="1">1/10</option><option value="2">2/10</option><option value="3">3/10</option><option value="4">4/10</option><option value="5">5/10</option><option value="6">6/10</option><option value="7">7/10</option><option value="8">8/10</option><option value="9">9/10</option><option value="10">10/10</option>
+        <option value="">Choose difficulty</option><option value="Easy">Easy</option><option value="Just right">Just right</option><option value="Challenging">Challenging</option><option value="Too hard">Too hard</option>
       </select>
     </div>
 \n    <div class="guidance">
@@ -315,6 +314,7 @@
     const fields=()=>[...document.querySelectorAll('.log input, .done input, #session-notes, #overall-session-rating')];
     function collect(){
       const values={};
+      values.routine_name=document.querySelector('[role="tabpanel"]:not(.hidden) h2')?.textContent || (document.getElementById('tab-back').getAttribute('aria-selected')==='true'?'Back Strength':'Lower Body + Core');
       fields().forEach((el,i)=>{const key=el.id||'field_'+i;values[key]=el.type==='checkbox'?el.checked:el.value});
       return {fields:values,foodEntries:foodEntries,updated_at:new Date().toISOString()};
     }
